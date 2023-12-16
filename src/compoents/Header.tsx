@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from 'react-native';
+import {Colors} from '../utils';
+//
 interface HeaderPropsType {
   title?: string;
   onBackPress?: () => void;
@@ -34,12 +36,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 40
+    height: 40,
   },
   backButton: {},
   hdrText: {
     fontSize: 18,
     fontWeight: '700',
+    color: Colors.text_color,
     marginRight: 8,
     flex: 1,
   },

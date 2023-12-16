@@ -7,14 +7,14 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ViewStyle,
+  TextStyle,
 } from 'react-native';
 import {Colors} from '../utils';
 //
 interface TextPropsType {
   title?: string;
   onBackPress?: () => void;
-  style?: ViewStyle;
+  style?: TextStyle;
 }
 //
 export const AppText = ({title, style}: TextPropsType) => {
@@ -24,5 +24,6 @@ export const AppText = ({title, style}: TextPropsType) => {
 const styles = StyleSheet.create({
   container: {
     color: Colors.text_color,
+    fontSize: 14,
   },
 });

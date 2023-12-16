@@ -16,8 +16,8 @@ import {PageWrapper, AppText} from '../../compoents';
 import {Colors} from '../../utils';
 import {StackAuthProps} from '../../route/AuthRoutes';
 //SignInScreen
-const SignInScreen = ({navigation}: StackAuthProps) => {
-  const [voter_id, setVoter_Id] = useState('');
+const ForgotPassword = ({navigation}: StackAuthProps) => {
+  const [username, setUsername] = useState('');
   const [password, setPasswod] = useState('');
   //eamil valid check
   const isValidEmail = (email: string) => {
@@ -51,9 +51,9 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
           <TextInput
             style={styles.input}
             placeholder="Username"
-            placeholderTextColor={'#434242'}
-            onChangeText={setVoter_Id}
-            value={voter_id}
+            placeholderTextColor={Colors.placeholder_text}
+            onChangeText={setUsername}
+            value={username}
             onSubmitEditing={() => refPasswordInput?.current?.focus()}
             autoCapitalize="none"
             keyboardType="email-address"
@@ -62,7 +62,7 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor={'#434242'}
+            placeholderTextColor={Colors.placeholder_text}
             onChangeText={setPasswod}
             value={password}
             ref={refPasswordInput}
@@ -72,8 +72,7 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
           <TouchableOpacity onPress={onSignInPress} style={styles.signInBtn}>
             <AppText title={'SignIn'} style={{fontWeight: 'bold'}} />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ForgotPassword')}>
+          <TouchableOpacity onPress={onForgotPress}>
             <AppText
               title={`Forgot Password?`}
               style={{marginTop: 10, alignSelf: 'flex-end', color: '#F2F1EB'}}
@@ -150,4 +149,4 @@ const styles = StyleSheet.create({
   },
 });
 //
-export default SignInScreen;
+export default ForgotPassword;
