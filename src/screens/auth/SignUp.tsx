@@ -21,7 +21,11 @@ import {
   Dropdown,
   AppModal,
 } from '../../compoents';
-import {Colors} from '../../utils';
+import {
+  Colors,
+  formatDateToString,
+  formatStringToStringDate,
+} from '../../utils';
 
 //
 interface VoterType {
@@ -36,13 +40,17 @@ import {StackAuthProps} from '../../route/AuthRoutes';
 //SignInScreen
 const SignUpScreen = ({navigation}: StackAuthProps) => {
   //state
+  const [constituencyItems, setConstituencyItems] = useState([
+    {label: 'Apple', value: 'apple'},
+    {label: 'Banana', value: 'banana'},
+  ]);
   const [showCalendar, setShowCalendar] = useState(false);
   const [voter_id, setVoter_Id] = useState('');
   const [full_name, setFull_Name] = useState('');
-  const [DOB, setDOB] = useState('');
+  const [DOB, setDOB] = useState(formatDateToString(new Date()));
   const [password, setPasswod] = useState('');
   const [UVC, setUvc] = useState('');
-  const [constituency_id, setConstituency_id] = useState(0);
+  const [constituency_id, setConstituency_id] = useState('');
   //eamil valid check
 
   const refName = useRef<TextInput>(null);
@@ -68,7 +76,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
           <TextInput
             style={styles.input}
             placeholder="Voter Id"
-            placeholderTextColor={'#434242'}
+            placeholderTextColor={Colors.placeholder_text}
             onChangeText={setVoter_Id}
             value={voter_id}
             onSubmitEditing={() => refName?.current?.focus()}
@@ -79,7 +87,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
           <TextInput
             style={styles.input}
             placeholder="Full Name"
-            placeholderTextColor={'#434242'}
+            placeholderTextColor={Colors.placeholder_text}
             onChangeText={setFull_Name}
             ref={refName}
             value={full_name}
@@ -102,7 +110,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
                 <RnCalendar
                   date={DOB}
                   setDate={(date: string) => {
-                    setDOB(date);
+                    setDOB(formatStringToStringDate(date));
                     setShowCalendar(false);
                   }}
                 />
@@ -113,7 +121,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor={'#434242'}
+            placeholderTextColor={Colors.placeholder_text}
             onChangeText={setPasswod}
             value={password}
             autoCapitalize="none"
@@ -123,14 +131,20 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
           <TextInput
             style={styles.input}
             placeholder="UVC"
-            placeholderTextColor={'#434242'}
+            placeholderTextColor={Colors.placeholder_text}
             onChangeText={setUvc}
             value={UVC}
             autoCapitalize="none"
             secureTextEntry={true}
           />
           <AppText title={'Constituency'} />
-          <Dropdown />
+          <Dropdown
+            constituencyItems={constituencyItems}
+            constituency_id={constituency_id}
+            setConstituency={(val: string) => {
+              setConstituency_id(val);
+            }}
+          />
           <TouchableOpacity onPress={onSignUpPress} style={styles.signUpBtn}>
             <AppText title={'Sign Up'} style={{fontWeight: 'bold'}} />
           </TouchableOpacity>
@@ -147,7 +161,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
               title={'SIGN IN'}
               style={{
                 paddingLeft: 2,
-                fontSize: 16,
+                fontFamily: 'bold',
                 textDecorationLine: 'underline',
                 fontStyle: 'italic',
               }}

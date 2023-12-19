@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {View, Text} from 'react-native';
 import {Calendar} from 'react-native-calendars';
-import {formatDate} from '../utils';
+import {formatDateToString} from '../utils';
 //
 interface Props {
   date?: string;

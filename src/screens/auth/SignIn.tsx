@@ -93,7 +93,7 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
               title={'SIGN UP'}
               style={{
                 paddingLeft: 2,
-                fontSize: 16,
+                fontFamily: 'bold',
                 textDecorationLine: 'underline',
                 fontStyle: 'italic',
               }}

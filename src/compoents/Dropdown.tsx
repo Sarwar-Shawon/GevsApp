@@ -1,10 +1,26 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useState} from 'react';
+import {Image} from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Colors} from '../utils';
 //
-const Dropdown = () => {
+// constituencyItems={constituencyItems}
+//             constituency_id={constituency_id}
+//             setConstituency={(val: string) => {
+//               setConstituency_id(val);
+//             }}
+interface Props {
+  constituencyItems?: {label: string; value: string}[];
+  constituency_id: string;
+  setConstituency: (val: string) => void;
+}
+const Dropdown = ({
+  constituencyItems,
+  constituency_id,
+  setConstituency,
+}: Props) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
+
   const [items, setItems] = useState([
     {label: 'Apple', value: 'apple'},
     {label: 'Banana', value: 'banana'},
@@ -17,6 +33,9 @@ const Dropdown = () => {
       items={items}
       setOpen={setOpen}
       setValue={setValue}
+      onChangeValue={value => {
+        setConstituency(value || '');
+      }}
       // setItems={setItems}
       placeholder="Select Constituency"
       // theme="DARK"
@@ -42,11 +61,33 @@ const Dropdown = () => {
         color: Colors.placeholder_text,
         fontWeight: 'bold',
       }}
-      arrowIconStyle={{
-        width: 20,
-        height: 20,
-        backgroundColor: Colors.placeholder_text,
-      }}
+      ArrowDownIconComponent={() => (
+        <Image
+          source={
+            Colors.isDarkMode
+              ? require('../assets/img/down_arrow_gray.png')
+              : require('../assets/img/down_arrow.png')
+          }
+          style={{
+            width: 20,
+            height: 20,
+          }}
+        />
+      )}
+      TickIconComponent={() => (
+        <Image
+          source={
+            Colors.isDarkMode
+              ? require('../assets/img/check_mark.png')
+              : require('../assets/img/check_mark.png')
+          }
+          style={{
+            width: 10,
+            height: 20,
+          }}
+        />
+      )}
+      //
     />
   );
 };
