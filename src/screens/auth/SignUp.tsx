@@ -9,6 +9,7 @@ import {
   View,
   StyleSheet,
   TextStyle,
+  Image,
   Platform,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
@@ -128,15 +129,66 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
             secureTextEntry={true}
           />
           <AppText title={'UVC'} />
-          <TextInput
-            style={styles.input}
-            placeholder="UVC"
-            placeholderTextColor={Colors.placeholder_text}
-            onChangeText={setUvc}
-            value={UVC}
-            autoCapitalize="none"
-            secureTextEntry={true}
-          />
+
+          <View style={{flexDirection: 'row'}}>
+            <View style={{flex: 1}}>
+              <TextInput
+                style={styles.input}
+                placeholder="UVC"
+                placeholderTextColor={Colors.placeholder_text}
+                onChangeText={setUvc}
+                value={UVC}
+                autoCapitalize="none"
+                secureTextEntry={true}
+              />
+            </View>
+            <TouchableOpacity style={{margin: 5}} onPress={() => {}}>
+              <Image
+                source={
+                  Colors.isDarkMode
+                    ? require('../../assets/img/qr-code.png')
+                    : require('../../assets/img/qr-code.png')
+                }
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+          {/* <View
+            style={[
+              styles.input,
+              {
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              },
+            ]}>
+            <TextInput
+              style={{flex: 1, padding: 8}}
+              placeholder="UVC"
+              placeholderTextColor={Colors.placeholder_text}
+              onChangeText={setUvc}
+              value={UVC}
+              autoCapitalize="none"
+              secureTextEntry={true}
+            />
+            <TouchableOpacity onPress={() => {}}>
+              <Image
+                source={
+                  Colors.isDarkMode
+                    ? require('../../assets/img/qr-code.png')
+                    : require('../../assets/img/qr-code.png')
+                }
+                style={{
+                  width: 30,
+                  height: 30,
+                }}
+              />
+            </TouchableOpacity>
+          </View> */}
           <AppText title={'Constituency'} />
           <Dropdown
             constituencyItems={constituencyItems}

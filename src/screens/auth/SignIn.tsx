@@ -51,7 +51,7 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
           <TextInput
             style={styles.input}
             placeholder="Username"
-            placeholderTextColor={'#434242'}
+            placeholderTextColor={Colors.placeholder_text}
             onChangeText={setVoter_Id}
             value={voter_id}
             onSubmitEditing={() => refPasswordInput?.current?.focus()}
@@ -62,7 +62,7 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
           <TextInput
             style={styles.input}
             placeholder="Password"
-            placeholderTextColor={'#434242'}
+            placeholderTextColor={Colors.placeholder_text}
             onChangeText={setPasswod}
             value={password}
             ref={refPasswordInput}
