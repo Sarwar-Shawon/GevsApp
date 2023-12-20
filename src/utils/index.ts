@@ -3,3 +3,4 @@
  */
 export * from './Colors';
 export * from './Formats';
+export * from './PermissionHandler';

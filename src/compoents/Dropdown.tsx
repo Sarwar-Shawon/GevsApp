@@ -83,7 +83,7 @@ const Dropdown = ({
           }
           style={{
             width: 10,
-            height: 20,
+            height: 10,
           }}
         />
       )}

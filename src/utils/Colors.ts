@@ -15,5 +15,22 @@ export const Colors = {
   // text_dark: '#000000',
   // text_danger: '#CC381B',
   // text_medium: '#454F5B',
-  // primary: '#0049ff',
+  primary: '#0049ff',
+};
+export interface Theme {
+  backgroundColor: string;
+  textColor: string;
+  // Add more properties as needed
+}
+
+export const lightTheme: Theme = {
+  backgroundColor: '#ffffff',
+  textColor: '#000000',
+  // Add more properties as needed
+};
+
+export const darkTheme: Theme = {
+  backgroundColor: '#121212',
+  textColor: '#ffffff',
+  // Add more properties as needed
 };

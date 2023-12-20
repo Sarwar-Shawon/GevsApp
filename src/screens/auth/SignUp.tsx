@@ -21,6 +21,7 @@ import {
   RnCalendar,
   Dropdown,
   AppModal,
+  QRCodeScanner,
 } from '../../compoents';
 import {
   Colors,
@@ -52,6 +53,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   const [password, setPasswod] = useState('');
   const [UVC, setUvc] = useState('');
   const [constituency_id, setConstituency_id] = useState('');
+  const [showQrScan, setShowQrScan] = useState(false);
   //eamil valid check
 
   const refName = useRef<TextInput>(null);
@@ -94,7 +96,6 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
             value={full_name}
           />
           <AppText title={'Date Of Birth'} />
-
           <TouchableOpacity
             style={styles.input}
             onPress={() => {
@@ -139,10 +140,13 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
                 onChangeText={setUvc}
                 value={UVC}
                 autoCapitalize="none"
-                secureTextEntry={true}
               />
             </View>
-            <TouchableOpacity style={{margin: 5}} onPress={() => {}}>
+            <TouchableOpacity
+              style={{margin: 5}}
+              onPress={() => {
+                setShowQrScan(true);
+              }}>
               <Image
                 source={
                   Colors.isDarkMode
@@ -157,6 +161,20 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
               />
             </TouchableOpacity>
           </View>
+          {showQrScan && (
+            <AppModal
+              closeModal={() => setShowQrScan(false)}
+              hideClose={false}
+              style={{backgroundColor: '#EFF4FA'}}>
+              <View style={{flex: 1, marginVertical: 16}}>
+                <QRCodeScanner
+                  hideModal={() => setShowQrScan(false)}
+                  Uvc={UVC}
+                  setValue={val => setUvc(val)}
+                />
+              </View>
+            </AppModal>
+          )}
           {/* <View
             style={[
               styles.input,

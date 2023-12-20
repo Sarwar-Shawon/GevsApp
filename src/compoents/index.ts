@@ -7,3 +7,5 @@ export {default as PageWrapper} from './PageWrapper';
 export {default as RnCalendar} from './Calendar';
 export {default as Dropdown} from './Dropdown';
 export {default as AppModal} from './Modal';
+export {default as QRCodeScanner} from './QRCodeScanner';
+export {default as Loading} from './Loading';
