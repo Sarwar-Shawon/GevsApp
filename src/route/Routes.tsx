@@ -22,7 +22,7 @@ const AppNavigator = () => {
   return (
     <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack.Navigator
-        initialRouteName="Auth"
+        initialRouteName="Voter"
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Auth" component={AuthRoutes} />
         <Stack.Screen name="Voter" component={VoterRoutes} />
