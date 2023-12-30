@@ -2,9 +2,16 @@
  * @copyRight by md sarwar hoshen.
  */
 
-import React, {createContext, ReactNode, useContext, useState} from 'react';
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+  useEffect,
+} from 'react';
 import {Post} from '../api';
 import api from '../config/api';
+import {setItem, getItem} from '../utils';
 //SignIn Props Type
 interface SignInPropsType {
   voter_id: string;
@@ -13,19 +20,19 @@ interface SignInPropsType {
 //Auth Provider Data Type
 interface AuthProviderDataType {
   token: string;
+  isLoading: boolean;
   isAuthenticated: boolean;
   user_type: string;
   signIn: (params: SignInPropsType) => Promise<void>;
-  isLoading: boolean;
   error: string;
 }
 //INITIAL STATE
 const INITIAL_STATE: AuthProviderDataType = {
   token: '',
+  isLoading: true,
   isAuthenticated: false,
   user_type: '',
   signIn: async (_params: SignInPropsType) => {},
-  isLoading: false,
   error: '',
 };
 //
@@ -34,11 +41,38 @@ interface AuthProviderType {
 }
 //
 const AuthProvider = ({children}: AuthProviderType) => {
-  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLoading, setLoading] = useState<boolean>(true);
   const [token, setToken] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user_type, setUserType] = useState<string>('');
+  //
+  //Get Store Usr
+  useEffect(() => {
+    //
+    loadUsr();
+  }, []);
+  //
+  const loadUsr = async () => {
+    try {
+      // Set loading to true before starting the asynchronous operation
+      setLoading(true);
+
+      const user = await getItem('usr');
+      console.log('user:::', user);
+
+      if (user) {
+        setIsAuthenticated(true);
+        setUserType(user.user_type);
+      }
+
+      // Set loading to false after completing the operation
+    } catch (e) {
+      // Handle errors if needed
+    } finally {
+      setLoading(false);
+    }
+  };
   //
   const signIn = async (params: SignInPropsType) => {
     try {
@@ -46,22 +80,21 @@ const AuthProvider = ({children}: AuthProviderType) => {
       console.log('resp:::::', resp);
       if (resp.status === 'success') {
         // setToken(response.token);
-        const data = resp?.data as string;
-        setUserType(data);
+        const usr_type = resp?.data as string;
+        setUserType(usr_type);
         setIsAuthenticated(true);
+        setItem('usr', {usr_id: params.voter_id, user_type: usr_type});
         setLoading(false);
       } else {
         setError(resp.message ? resp.message : '');
-        setLoading(false);
         setIsAuthenticated(false);
         return;
       }
     } catch (err) {}
   };
-
   return (
     <AuthContext.Provider
-      value={{isLoading, token, isAuthenticated,user_type, signIn, error}}>
+      value={{isLoading, token, isAuthenticated, user_type, signIn, error}}>
       {children}
     </AuthContext.Provider>
   );

@@ -7,6 +7,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import AuthRoutes from './AuthRoutes';
 import VoterRoutes from './VoterRoutes';
 import EcoRoutes from './EcoRoutes';
+import LoadingStack from './LoadingStack';
 //
 import {useColorScheme} from 'react-native';
 import {
@@ -48,12 +49,12 @@ const AppStack = () => {
 };
 //
 const AppNavigator = () => {
-  const {isAuthenticated} = useAuthContext();
+  const {isAuthenticated, isLoading} = useAuthContext();
   const scheme = useColorScheme();
   //
   return (
     <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
-      {isAuthenticated ? <AppStack /> : <AuthStack />}
+      {isLoading ? <LoadingStack /> : isAuthenticated ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
 };

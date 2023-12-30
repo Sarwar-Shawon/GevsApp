@@ -11,23 +11,19 @@ const Loading = () => {
   const {width, height} = useWindowDimensions();
 
   return (
-    <View style={[styles.body, {width, height}]}>
+    <View style={[styles.container, {width, height}]}>
       <ActivityIndicator size={'large'} color={Colors.primary} />
     </View>
   );
 };
 export default Loading;
 const styles = StyleSheet.create({
-  body: {
+  container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.background,
     position: 'absolute',
     zIndex: 10000,
-  },
-  lottie: {
-    width: 56,
-    height: 56,
   },
 });
