@@ -12,13 +12,20 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
-import {PageWrapper, AppText} from '../../compoents';
+import {useAuthContext} from '../../context';
+
+import {PageWrapper, AppText, ErrorMessage} from '../../compoents';
 import {Colors} from '../../utils';
 import {StackAuthProps} from '../../route/AuthRoutes';
+import {Post, Get} from '../../api';
+import api from '../../config/api';
+
 //SignInScreen
 const SignInScreen = ({navigation}: StackAuthProps) => {
+  const {signIn, error: authError} = useAuthContext();
   const [voter_id, setVoter_Id] = useState('');
   const [password, setPasswod] = useState('');
+  const [error, setError] = useState<string>('');
   //eamil valid check
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -28,6 +35,18 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
   //
   const onSignInPress = async () => {
     try {
+      setError('');
+      if (
+        voter_id.length === 0 ||
+        password.length === 0 ||
+        /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(voter_id) === false
+      ) {
+        setError('Enter valid email and password');
+        return;
+      }
+      // SetLoading(true);
+      await signIn({voter_id, password});
+      // SetLoading(false);
     } catch (err) {}
   };
   //
@@ -43,6 +62,23 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
   //
   return (
     <PageWrapper title={'Sign In'} showHdr={false}>
+      {error !== '' && (
+        <View style={{flexDirection: 'row'}}>
+          <View style={{flex: 1}}>
+            <ErrorMessage message={error} />
+          </View>
+          <TouchableOpacity
+            style={{
+              padding: 10,
+              backgroundColor: 'green',
+              margin: 10,
+              borderRadius: 10,
+            }}
+            onPress={() => setError('')}>
+            <Text style={{color: 'white'}}>Hide</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>

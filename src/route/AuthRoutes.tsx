@@ -21,7 +21,7 @@ const StackAuth = createNativeStackNavigator<AuthStackParamType>();
 function AuthRoutes() {
   return (
     <StackAuth.Navigator
-      initialRouteName="SignUp"
+      initialRouteName="SignIn"
       screenOptions={{headerShown: false}}>
       <StackAuth.Screen name="SignIn" component={SignIn} />
       <StackAuth.Screen name="SignUp" component={SignUp} />

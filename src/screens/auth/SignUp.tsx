@@ -10,6 +10,7 @@ import {
   StyleSheet,
   TextStyle,
   Image,
+  Alert,
   Platform,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
@@ -40,14 +41,19 @@ interface VoterType {
   UVC: string;
   constituency_id: number;
 }
+//
+interface Constituency {
+  label: string;
+  value: string;
+}
+//
 import {StackAuthProps} from '../../route/AuthRoutes';
 //SignInScreen
 const SignUpScreen = ({navigation}: StackAuthProps) => {
   //state
-  const [constituencyItems, setConstituencyItems] = useState([
-    {label: 'Apple', value: 'apple'},
-    {label: 'Banana', value: 'banana'},
-  ]);
+  const [constituencyItems, setConstituencyItems] = useState<Constituency[]>(
+    [] as Constituency[],
+  );
   const [showCalendar, setShowCalendar] = useState(false);
   const [voter_id, setVoter_Id] = useState('');
   const [full_name, setFull_Name] = useState('');
@@ -66,10 +72,32 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   //
   const onSignUpPress = async () => {
     try {
-      if (UVC.trim() === '') {
-        setError('Please enter an UVC');
+      // if (UVC.trim() === '') {
+      //   setError('Please enter an UVC');
+      // } else {
+      //   setError('');
+      // }
+      //
+      const params = {
+        voter_id,
+        full_name,
+        DOB,
+        password,
+        UVC,
+        constituency_id,
+        user_type: 'voter',
+      };
+      const resp = await Post(`${api.SERVER_TEST}/gevs/auth/register`, params);
+      console.log('resp:::::', resp);
+      if (resp.status === 'success') {
+        Alert.alert(
+          'Success',
+          resp.message,
+          [{text: 'OK', onPress: () => {}}],
+          {cancelable: false},
+        );
       } else {
-        setError('');
+        setError(resp.message ? resp.message : '');
       }
     } catch (err) {}
   };
@@ -77,8 +105,12 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   const getConstituency = async () => {
     try {
       const resp = await Get(`${api.SERVER_TEST}/gevs/constituency/all`);
-      console.log('resp:::', resp?.status);
-      console.log('data:::', resp.data);
+      if (resp.status === 'success') {
+        const data = resp?.data as Constituency[];
+        setConstituencyItems(data);
+      } else {
+        setConstituencyItems([]);
+      }
     } catch (err) {}
   };
   //

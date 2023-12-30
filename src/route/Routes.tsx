@@ -14,20 +14,39 @@ import {
   DefaultTheme,
   DarkTheme,
 } from '@react-navigation/native';
-const Stack = createNativeStackNavigator();
+import {useAuthContext} from '../context';
 
+const Stack = createNativeStackNavigator();
+// Auth stack
+const AuthStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="Auth" component={AuthRoutes} />
+    </Stack.Navigator>
+  );
+};
+// App Stack
+const AppStack = () => {
+  const {user_type} = useAuthContext();
+
+  return (
+    <Stack.Navigator
+      initialRouteName={user_type == 'voter' ? 'Voter' : 'Eco'}
+      screenOptions={{headerShown: false}}>
+      <Stack.Screen name="Voter" component={VoterRoutes} />
+      <Stack.Screen name="Eco" component={EcoRoutes} />
+    </Stack.Navigator>
+  );
+};
+//
 const AppNavigator = () => {
+  const {isAuthenticated} = useAuthContext();
+
   const scheme = useColorScheme();
   //
   return (
     <NavigationContainer theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack.Navigator
-        initialRouteName="Auth"
-        screenOptions={{headerShown: false}}>
-        <Stack.Screen name="Auth" component={AuthRoutes} />
-        <Stack.Screen name="Voter" component={VoterRoutes} />
-        <Stack.Screen name="Eco" component={EcoRoutes} />
-      </Stack.Navigator>
+      {isAuthenticated ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
 };

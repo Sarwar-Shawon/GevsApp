@@ -9,7 +9,7 @@ import {Colors} from '../utils';
 //               setConstituency_id(val);
 //             }}
 interface Props {
-  constituencyItems?: {label: string; value: string}[];
+  constituencyItems: {label: string; value: string}[];
   constituency_id: string;
   setConstituency: (val: string) => void;
 }
@@ -30,7 +30,7 @@ const Dropdown = ({
       showArrowIcon={true}
       open={open}
       value={value}
-      items={items}
+      items={constituencyItems}
       setOpen={setOpen}
       setValue={setValue}
       onChangeValue={value => {
