@@ -22,13 +22,15 @@ import {
   Dropdown,
   AppModal,
   QRCodeScanner,
+  ErrorMessage,
 } from '../../compoents';
 import {
   Colors,
   formatDateToString,
   formatStringToStringDate,
 } from '../../utils';
-
+import {Post, Get} from '../../api';
+import api from '../../config/api';
 //
 interface VoterType {
   voter_id: string;
@@ -54,12 +56,29 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   const [UVC, setUvc] = useState('');
   const [constituency_id, setConstituency_id] = useState('');
   const [showQrScan, setShowQrScan] = useState(false);
-  //eamil valid check
-
+  const [error, setError] = useState<string>('');
+  //
+  useEffect(() => {
+    getConstituency();
+  }, []);
+  //ref name
   const refName = useRef<TextInput>(null);
   //
   const onSignUpPress = async () => {
     try {
+      if (UVC.trim() === '') {
+        setError('Please enter an UVC');
+      } else {
+        setError('');
+      }
+    } catch (err) {}
+  };
+  // get constituency
+  const getConstituency = async () => {
+    try {
+      const resp = await Get(`${api.SERVER_TEST}/gevs/constituency/all`);
+      console.log('resp:::', resp?.status);
+      console.log('data:::', resp.data);
     } catch (err) {}
   };
   //
@@ -70,6 +89,23 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   //
   return (
     <PageWrapper title={'Sign Up'} showHdr={false}>
+      {error !== '' && (
+        <View style={{flexDirection: 'row'}}>
+          <View style={{flex: 1}}>
+            <ErrorMessage message={error} />
+          </View>
+          <TouchableOpacity
+            style={{
+              padding: 10,
+              backgroundColor: 'green',
+              margin: 10,
+              borderRadius: 10,
+            }}
+            onPress={() => setError('')}>
+            <Text style={{color: 'white'}}>Hide</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       {/* <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}> */}
@@ -239,6 +275,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
           </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
+
       {/* </KeyboardAvoidingView> */}
     </PageWrapper>
   );
