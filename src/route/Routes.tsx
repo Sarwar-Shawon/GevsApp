@@ -25,23 +25,30 @@ const AuthStack = () => {
     </Stack.Navigator>
   );
 };
-// App Stack
-const AppStack = () => {
-  const {user_type} = useAuthContext();
-
+// Voter stack
+const VoterStack = () => {
   return (
-    <Stack.Navigator
-      initialRouteName={user_type == 'voter' ? 'Voter' : 'Eco'}
-      screenOptions={{headerShown: false}}>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Voter" component={VoterRoutes} />
+    </Stack.Navigator>
+  );
+};
+// Eco stack
+const EcoStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Eco" component={EcoRoutes} />
     </Stack.Navigator>
   );
 };
+// App Stack
+const AppStack = () => {
+  const {user_type} = useAuthContext();
+  return user_type == 'voter' ? <VoterStack /> : <EcoStack />;
+};
 //
 const AppNavigator = () => {
   const {isAuthenticated} = useAuthContext();
-
   const scheme = useColorScheme();
   //
   return (
