@@ -1,16 +1,59 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 //
-const candidates = [
-  {id: 1, name: 'Candidate A'},
-  {id: 2, name: 'Candidate B'},
-];
+import {Post, Get} from '../../api';
+import api from '../../config/api';
+import {setItem, getItem} from '../../utils';
+//
+interface Candidate {
+  _id: string;
+  candidate: string;
+  party_id: string;
+  party_name: string;
+  constituency_id: string;
+  constituency_name: string;
+  vote_count: Number;
+  __v: Number;
+}
+
+// const candidates = [
+//   {id: 1, name: 'Candidate A'},
+//   {id: 2, name: 'Candidate B'},
+// ];
 //voter dashboard
 const HomeScreen = () => {
-  const [selectedCandidate, setSelectedCandidate] = useState(0);
+  const [candidates, setCandidates] = useState<Candidate[]>([] as Candidate[]);
+  const [selectedCandidate, setSelectedCandidate] = useState('');
   const [voteSubmitted, setVoteSubmitted] = useState(false);
-
-  const handleVote = (candidateId: number) => {
+  const [loading, setLoading] = useState(false);
+  //Get Candidates
+  useEffect(() => {
+    //
+    loadCandidates();
+  }, []);
+  //
+  const loadCandidates = async () => {
+    try {
+      // Set loading to true before starting the asynchronous operation
+      setLoading(true);
+      const user = await getItem('usr');
+      console.log('user:::', user);
+      if (user) {
+        const resp = await Get(
+          `${api.SERVER_TEST}/gevs/candidate/get-candidates/${user.usr_id}`,
+        );
+        console.log('resp:::::', resp.data, typeof resp.data);
+        const data = resp.data as Candidate[];
+        setCandidates(data);
+      }
+      // Set loading to false after completing the operation
+    } catch (e) {
+      // Handle errors if needed
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleVote = (candidateId: string) => {
     setSelectedCandidate(candidateId);
   };
   //vote submit handler
@@ -27,14 +70,14 @@ const HomeScreen = () => {
 
       {candidates.map(candidate => (
         <TouchableOpacity
-          key={candidate.id}
+          key={candidate._id}
           style={[
             styles.candidateButton,
-            selectedCandidate === candidate.id && styles.selectedCandidate,
+            selectedCandidate === candidate._id && styles.selectedCandidate,
           ]}
-          onPress={() => handleVote(candidate.id)}
+          onPress={() => handleVote(candidate._id)}
           disabled={voteSubmitted}>
-          <Text>{candidate.name}</Text>
+          <Text>{candidate.candidate}</Text>
         </TouchableOpacity>
       ))}
 
