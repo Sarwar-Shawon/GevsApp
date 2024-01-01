@@ -39,6 +39,10 @@ const INITIAL_STATE: AuthProviderDataType = {
 interface AuthProviderType {
   children: ReactNode;
 }
+interface User {
+  user_type: string;
+  uvc: string;
+}
 //
 const AuthProvider = ({children}: AuthProviderType) => {
   const [isLoading, setLoading] = useState<boolean>(true);
@@ -76,10 +80,14 @@ const AuthProvider = ({children}: AuthProviderType) => {
       console.log('resp:::::', resp);
       if (resp.status === 'success') {
         // setToken(response.token);
-        const usr_type = resp?.data as string;
-        setUserType(usr_type);
+        const data = resp?.data as User;
+        setUserType(data.user_type);
         setIsAuthenticated(true);
-        setItem('usr', {usr_id: params.voter_id, user_type: usr_type});
+        setItem('usr', {
+          usr_id: params.voter_id,
+          user_type: data.user_type,
+          uvc: data.uvc,
+        });
         setLoading(false);
       } else {
         setError(resp.message ? resp.message : '');

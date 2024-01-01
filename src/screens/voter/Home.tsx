@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
 } from 'react-native';
 //
 import {Post, Get} from '../../api';
@@ -23,7 +23,16 @@ interface Candidate {
   vote_count: Number;
   __v: Number;
 }
-
+interface vote {
+  status: string;
+  data: object;
+  message?: string;
+}
+interface voteData {
+  voter_id: string;
+  uvc: string;
+  candidate_id: string;
+}
 // const candidates = [
 //   {id: 1, name: 'Candidate A'},
 //   {id: 2, name: 'Candidate B'},
@@ -35,13 +44,13 @@ const HomeScreen = () => {
   const [electionStatus, setElectionStatus] = useState('');
   const [voteSubmitted, setVoteSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
-  //Get Candidates
+  //useEffect
   useEffect(() => {
-    //
+    checkProvidedVote();
     getElectionStatus();
     loadCandidates();
   }, []);
-  //
+  //get Election Status
   const getElectionStatus = async () => {
     try {
       const resp = await Get(
@@ -54,7 +63,7 @@ const HomeScreen = () => {
       console.log('err', err);
     }
   };
-  //
+  //load Candidates
   const loadCandidates = async () => {
     try {
       setLoading(true);
@@ -63,7 +72,7 @@ const HomeScreen = () => {
         const resp = await Get(
           `${api.SERVER_TEST}/gevs/candidate/get-candidates/${user.usr_id}`,
         );
-        console.log('resp:::::', resp.data, typeof resp.data);
+        // console.log('resp:::::', resp.data);
         const data = resp.data as Candidate[];
         setCandidates(data);
       }
@@ -74,14 +83,50 @@ const HomeScreen = () => {
       setLoading(false);
     }
   };
-  const handleVote = (candidateId: string) => {
-    setSelectedCandidate(candidateId);
+  //check Provided Vote
+  const checkProvidedVote = async () => {
+    try {
+      setLoading(true);
+      const user = await getItem('usr');
+      if (user) {
+        const resp = await Get(
+          `${api.SERVER_TEST}/gevs/vote/get?voter_id=${user.usr_id}`,
+        );
+        // console.log('checkProvidedVote: resp:::::', resp);
+        const data = resp;
+        if (resp.data) {
+          const voteData = data.data as voteData;
+          setSelectedCandidate(voteData?.candidate_id);
+          setVoteSubmitted(true);
+        } else setVoteSubmitted(false);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.log('err', err);
+    } finally {
+      setLoading(false);
+    }
   };
   //vote submit handler
   const handleSubmitVote = async () => {
     try {
       console.log('Vote submitted for candidate:', selectedCandidate);
-      setVoteSubmitted(true);
+      const user = await getItem('usr');
+      const resp = await Post(`${api.SERVER_TEST}/gevs/vote/provide`, {
+        voter_id: user.usr_id,
+        uvc: user.uvc,
+        candidate_id: selectedCandidate,
+      });
+      // console.log('election status:::::', resp.data);
+      if (resp.status === 'success') {
+        setVoteSubmitted(true);
+        Alert.alert(
+          'Success',
+          resp.message,
+          [{text: 'OK', onPress: () => {}}],
+          {cancelable: false},
+        );
+      }
     } catch (err) {}
   };
   if (loading) {
@@ -99,9 +144,9 @@ const HomeScreen = () => {
             fontSize: 16,
             color:
               electionStatus == 'not-started'
-                ? '#F6ECA9'
+                ? '#F66B0E'
                 : electionStatus == 'ongoing'
-                ? '#4caf50'
+                ? '#5B8A72'
                 : electionStatus == 'finished'
                 ? '#CC381B'
                 : Colors.text_color,
@@ -134,7 +179,7 @@ const HomeScreen = () => {
               styles.candidateButton,
               selectedCandidate === candidate._id && styles.selectedCandidate,
             ]}
-            onPress={() => handleVote(candidate._id)}
+            onPress={() => setSelectedCandidate(candidate._id)}
             disabled={voteSubmitted}>
             <AppText style={{color: '#000000'}} title={candidate.candidate} />
           </TouchableOpacity>
@@ -156,7 +201,14 @@ const HomeScreen = () => {
                   : Colors.text_color,
             },
           ]}
-          onPress={handleSubmitVote}>
+          onPress={handleSubmitVote}
+          disabled={
+            /* electionStatus == 'not-started'
+              ? true
+              : electionStatus == 'finished'
+              ? true
+              : */ voteSubmitted
+          }>
           <AppText style={styles.submitButtonText} title={'Submit Vote'} />
         </TouchableOpacity>
       )}
@@ -202,7 +254,7 @@ const styles = StyleSheet.create({
   submitText: {
     marginHorizontal: 20,
     marginVertical: 10,
-    color: '#C5E898',
+    color: '#5B8A72',
   },
 });
 
