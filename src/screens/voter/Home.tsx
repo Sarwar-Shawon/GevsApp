@@ -4,6 +4,7 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {Post, Get} from '../../api';
 import api from '../../config/api';
 import {setItem, getItem} from '../../utils';
+import {Loading} from '../../compoents';
 //
 interface Candidate {
   _id: string;
@@ -25,7 +26,7 @@ const HomeScreen = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([] as Candidate[]);
   const [selectedCandidate, setSelectedCandidate] = useState('');
   const [voteSubmitted, setVoteSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   //Get Candidates
   useEffect(() => {
     //
@@ -37,7 +38,6 @@ const HomeScreen = () => {
       // Set loading to true before starting the asynchronous operation
       setLoading(true);
       const user = await getItem('usr');
-      console.log('user:::', user);
       if (user) {
         const resp = await Get(
           `${api.SERVER_TEST}/gevs/candidate/get-candidates/${user.usr_id}`,
@@ -46,9 +46,9 @@ const HomeScreen = () => {
         const data = resp.data as Candidate[];
         setCandidates(data);
       }
-      // Set loading to false after completing the operation
-    } catch (e) {
-      // Handle errors if needed
+      setLoading(false);
+    } catch (err) {
+      console.log('err', err);
     } finally {
       setLoading(false);
     }
@@ -63,6 +63,9 @@ const HomeScreen = () => {
       setVoteSubmitted(true);
     } catch (err) {}
   };
+  if (loading) {
+    return <Loading />;
+  }
   //render
   return (
     <View style={styles.container}>

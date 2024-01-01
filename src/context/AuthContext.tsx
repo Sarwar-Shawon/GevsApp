@@ -55,20 +55,16 @@ const AuthProvider = ({children}: AuthProviderType) => {
   //
   const loadUsr = async () => {
     try {
-      // Set loading to true before starting the asynchronous operation
       setLoading(true);
-
       const user = await getItem('usr');
-      console.log('user:::', user);
+      // console.log('user:::', user);
 
       if (user) {
         setIsAuthenticated(true);
         setUserType(user.user_type);
       }
-
-      // Set loading to false after completing the operation
-    } catch (e) {
-      // Handle errors if needed
+    } catch (err) {
+      // console.error('err:', err);
     } finally {
       setLoading(false);
     }
