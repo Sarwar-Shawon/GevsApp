@@ -1,10 +1,17 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 //
 import {Post, Get} from '../../api';
 import api from '../../config/api';
-import {setItem, getItem} from '../../utils';
-import {Loading} from '../../compoents';
+import appConfig from '../../config/config';
+import {setItem, getItem, Colors} from '../../utils';
+import {Loading, PageWrapper} from '../../compoents';
 //
 interface Candidate {
   _id: string;
@@ -25,17 +32,31 @@ interface Candidate {
 const HomeScreen = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([] as Candidate[]);
   const [selectedCandidate, setSelectedCandidate] = useState('');
+  const [electionStatus, setElectionStatus] = useState('');
   const [voteSubmitted, setVoteSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
   //Get Candidates
   useEffect(() => {
     //
+    getElectionStatus();
     loadCandidates();
   }, []);
   //
+  const getElectionStatus = async () => {
+    try {
+      const resp = await Get(
+        `${api.SERVER_TEST}/gevs/settings/get-status?settingsId=${appConfig.settingsId}`,
+      );
+      console.log('election status:::::', resp.data);
+      const status = resp.data as string;
+      setElectionStatus(status);
+    } catch (err) {
+      console.log('err', err);
+    }
+  };
+  //
   const loadCandidates = async () => {
     try {
-      // Set loading to true before starting the asynchronous operation
       setLoading(true);
       const user = await getItem('usr');
       if (user) {
@@ -68,21 +89,40 @@ const HomeScreen = () => {
   }
   //render
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Cast Your Vote</Text>
-
-      {candidates.map(candidate => (
-        <TouchableOpacity
-          key={candidate._id}
-          style={[
-            styles.candidateButton,
-            selectedCandidate === candidate._id && styles.selectedCandidate,
-          ]}
-          onPress={() => handleVote(candidate._id)}
-          disabled={voteSubmitted}>
-          <Text>{candidate.candidate}</Text>
-        </TouchableOpacity>
-      ))}
+    <PageWrapper style={styles.container}>
+      <View
+        style={{
+          flexDirection: 'row',
+          margin: 10,
+        }}>
+        <Text style={styles.title}>Election Status:</Text>
+        <Text style={styles.title}>
+          {electionStatus == 'not-started'
+            ? "It's not started"
+            : electionStatus == 'ongoing'
+            ? 'You Can cast your vote now.'
+            : electionStatus == 'finished'
+            ? 'The election has finished'
+            : ''}
+        </Text>
+      </View>
+      <View style={{justifyContent: 'center', alignItems: 'center'}}>
+        <Text style={styles.title}>Cast Your Vote</Text>
+      </View>
+      <ScrollView style={{flex: 1, margin: 20}}>
+        {candidates.map(candidate => (
+          <TouchableOpacity
+            key={candidate._id}
+            style={[
+              styles.candidateButton,
+              selectedCandidate === candidate._id && styles.selectedCandidate,
+            ]}
+            onPress={() => handleVote(candidate._id)}
+            disabled={voteSubmitted}>
+            <Text>{candidate.candidate}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
       {!voteSubmitted && selectedCandidate !== null && (
         <TouchableOpacity
@@ -95,20 +135,19 @@ const HomeScreen = () => {
       {voteSubmitted && (
         <Text style={styles.voteSubmittedText}>Vote Submitted. Thank you!</Text>
       )}
-    </View>
+    </PageWrapper>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     paddingHorizontal: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 16,
     marginBottom: 20,
+    color: Colors.text_color,
   },
   candidateButton: {
     backgroundColor: '#e0e0e0',
@@ -124,9 +163,8 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: '#4caf50',
     padding: 15,
-    marginTop: 20,
+    margin: 20,
     borderRadius: 8,
-    width: '100%',
     alignItems: 'center',
   },
   submitButtonText: {
