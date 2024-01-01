@@ -24,6 +24,6 @@ export const AppText = ({title, style}: TextPropsType) => {
 const styles = StyleSheet.create({
   container: {
     color: Colors.text_color,
-    fontSize: 14,
+    fontSize: 16,
   },
 });

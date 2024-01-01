@@ -11,7 +11,7 @@ import {Post, Get} from '../../api';
 import api from '../../config/api';
 import appConfig from '../../config/config';
 import {setItem, getItem, Colors} from '../../utils';
-import {Loading, PageWrapper} from '../../compoents';
+import {AppText, Loading, PageWrapper} from '../../compoents';
 //
 interface Candidate {
   _id: string;
@@ -90,25 +90,42 @@ const HomeScreen = () => {
   //render
   return (
     <PageWrapper style={styles.container}>
-      <View
-        style={{
-          flexDirection: 'row',
-          margin: 10,
-        }}>
-        <Text style={styles.title}>Election Status:</Text>
-        <Text style={styles.title}>
-          {electionStatus == 'not-started'
-            ? "It's not started"
-            : electionStatus == 'ongoing'
-            ? 'You Can cast your vote now.'
-            : electionStatus == 'finished'
-            ? 'The election has finished'
-            : ''}
-        </Text>
+      <View style={{margin: 20}}>
+        <AppText style={styles.title} title="Election Status" />
+        <AppText
+          style={{
+            marginTop: 5,
+            fontFamily: 'bold',
+            fontSize: 16,
+            color:
+              electionStatus == 'not-started'
+                ? '#F6ECA9'
+                : electionStatus == 'ongoing'
+                ? '#4caf50'
+                : electionStatus == 'finished'
+                ? '#CC381B'
+                : Colors.text_color,
+          }}
+          title={
+            electionStatus == 'not-started'
+              ? "It's not started yet, So you won't be able to submit yout vote at this moment."
+              : electionStatus == 'ongoing'
+              ? 'Election is ongoing now, So You Can cast your vote now.'
+              : electionStatus == 'finished'
+              ? 'The election has finished.'
+              : ''
+          }
+        />
       </View>
-      <View style={{justifyContent: 'center', alignItems: 'center'}}>
-        <Text style={styles.title}>Cast Your Vote</Text>
+      <View style={{marginLeft: 20}}>
+        <AppText style={styles.title} title="Cast Your Vote" />
       </View>
+      {voteSubmitted && (
+        <AppText
+          style={styles.submitText}
+          title={"You've already Submitted your Vote. Thank you!"}
+        />
+      )}
       <ScrollView style={{flex: 1, margin: 20}}>
         {candidates.map(candidate => (
           <TouchableOpacity
@@ -119,21 +136,29 @@ const HomeScreen = () => {
             ]}
             onPress={() => handleVote(candidate._id)}
             disabled={voteSubmitted}>
-            <Text>{candidate.candidate}</Text>
+            <AppText style={{color: '#000000'}} title={candidate.candidate} />
           </TouchableOpacity>
         ))}
       </ScrollView>
 
       {!voteSubmitted && selectedCandidate !== null && (
         <TouchableOpacity
-          style={styles.submitButton}
+          style={[
+            styles.submitButton,
+            {
+              backgroundColor:
+                electionStatus == 'not-started'
+                  ? '#7D808B'
+                  : electionStatus == 'ongoing'
+                  ? '#4caf50'
+                  : electionStatus == 'finished'
+                  ? '#7D808B'
+                  : Colors.text_color,
+            },
+          ]}
           onPress={handleSubmitVote}>
-          <Text style={styles.submitButtonText}>Submit Vote</Text>
+          <AppText style={styles.submitButtonText} title={'Submit Vote'} />
         </TouchableOpacity>
-      )}
-
-      {voteSubmitted && (
-        <Text style={styles.voteSubmittedText}>Vote Submitted. Thank you!</Text>
       )}
     </PageWrapper>
   );
@@ -142,11 +167,9 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
   },
   title: {
     fontSize: 16,
-    marginBottom: 20,
     color: Colors.text_color,
   },
   candidateButton: {
@@ -175,6 +198,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 18,
     color: '#4caf50',
+  },
+  submitText: {
+    marginHorizontal: 20,
+    marginVertical: 10,
+    color: '#C5E898',
   },
 });
 
