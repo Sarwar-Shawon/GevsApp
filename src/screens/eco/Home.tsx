@@ -35,6 +35,14 @@ interface User {
   uvc: string;
   user_name: string;
 }
+interface postResponse {
+  status: string;
+  data: object;
+  message: string;
+}
+interface electionStatus {
+  election_status: string;
+}
 // const candidates = [
 //   {id: 1, name: 'Candidate A'},
 //   {id: 2, name: 'Candidate B'},
@@ -113,12 +121,64 @@ const HomeScreen = () => {
       const data = resp.data as Candidate[];
       console.log('datadatadatadatadata:::::', data);
 
-      setCandidates(data);
+      setCandidates(data || []);
       setLoading(false);
     } catch (err) {
       console.log('err', err);
     } finally {
       setLoading(false);
+    }
+  };
+  //load Constituency Results
+  const handleElection = async (cons_name: string) => {
+    Alert.alert(
+      'Confirmation',
+      `Do you want to ${
+        electionStatus == 'not-started' || electionStatus == 'finished'
+          ? 'Start'
+          : 'Stop'
+      } the election?`,
+      [
+        {
+          text: 'No',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: () => {
+            changeElectionStatus();
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+  //change Election Status
+  const changeElectionStatus = async () => {
+    try {
+      // setLoading(true);
+      const resp = await Post(
+        `${api.SERVER_TEST}/gevs/settings/update-status`,
+        {
+          settingsId: 'Shangri-La-Election',
+          status:
+            electionStatus == 'not-started' || electionStatus == 'finished'
+              ? 'ongoing'
+              : electionStatus == 'ongoing'
+              ? 'finished'
+              : 'not-started',
+        },
+      );
+      console.log('resp:::::', resp.data);
+      if (resp.status == 'success') {
+        const data = resp.data as electionStatus;
+        console.log('datadatadatadatadata:::::', data);
+        setElectionStatus(data?.election_status);
+      }
+      // setLoading(false);
+    } catch (err) {
+      console.log('err', err);
     }
   };
   //
@@ -175,24 +235,41 @@ const HomeScreen = () => {
             fontFamily: 'bold',
             fontSize: 16,
             color:
-              electionStatus == 'not-started'
+              electionStatus == 'not-started' || electionStatus == 'finished'
                 ? '#F66B0E'
                 : electionStatus == 'ongoing'
                 ? '#5B8A72'
-                : electionStatus == 'finished'
-                ? '#CC381B'
                 : Colors.text_color,
           }}
           title={
-            electionStatus == 'not-started'
-              ? "It's not started yet, So you won't be able to submit your vote at this moment."
+            electionStatus == 'not-started' || electionStatus == 'finished'
+              ? "It's not started yet, Do you want to start the election?"
               : electionStatus == 'ongoing'
-              ? 'Election is ongoing now, So You Can cast your vote now.'
-              : electionStatus == 'finished'
-              ? 'The election has finished.'
+              ? 'Election is ongoing now, Do you want to stop the election.'
               : ''
           }
         />
+        <TouchableOpacity
+          style={{
+            backgroundColor:
+              electionStatus == 'not-started' || electionStatus == 'finished'
+                ? '#4caf50'
+                : '#F66B0E',
+            padding: 10,
+            margin: 20,
+            borderRadius: 8,
+            alignItems: 'center',
+          }}
+          onPress={() => handleElection()}>
+          <AppText
+            style={{color: '#000000'}}
+            title={
+              electionStatus == 'not-started' || electionStatus == 'finished'
+                ? 'Start'
+                : 'Stop'
+            }
+          />
+        </TouchableOpacity>
       </View>
       <View style={{marginLeft: 20}}>
         <AppText style={styles.title} title="All Constituency" />
@@ -217,12 +294,80 @@ const HomeScreen = () => {
           <View style={{flex: 1, marginVertical: 16}}>
             {/* <Loading /> */}
             <ScrollView style={{flex: 1, margin: 20}}>
-              {candidates.map(candidate => (
-                <View key={candidate._id}>
-                  <AppText title={candidate.candidate} />
-                  <AppText title={candidate.vote_count.toString()} />
+              {candidates.length > 0 ? (
+                <View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      backgroundColor: '#4caf50',
+                    }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        padding: 2,
+                        margin: 5,
+                      }}>
+                      <AppText title={'Name'} />
+                    </View>
+                    <View
+                      style={{
+                        flex: 1,
+                        padding: 2,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <AppText title={'Votes'} style={{}} />
+                    </View>
+                  </View>
+                  {candidates.map(candidate => (
+                    <View key={candidate._id}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          padding: 2,
+                          margin: 5,
+                        }}>
+                        <View
+                          style={{
+                            flex: 1,
+                          }}>
+                          <AppText
+                            title={candidate.candidate}
+                            style={{
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                            }}
+                          />
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <AppText
+                            title={candidate.vote_count.toString()}
+                            style={{
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View
+                        style={{backgroundColor: '#7D808B', height: 1}}></View>
+                    </View>
+                  ))}
                 </View>
-              ))}
+              ) : (
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <AppText title={'No Candidates Found.'} />
+                </View>
+              )}
             </ScrollView>
           </View>
         </AppModal>
