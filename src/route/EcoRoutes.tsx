@@ -7,7 +7,7 @@ const Stack = createNativeStackNavigator();
 
 function EcoRoutes() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="EcoHome" component={Home} />
     </Stack.Navigator>
   );

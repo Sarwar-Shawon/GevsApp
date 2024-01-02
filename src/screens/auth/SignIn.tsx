@@ -22,7 +22,7 @@ import api from '../../config/api';
 
 //SignInScreen
 const SignInScreen = ({navigation}: StackAuthProps) => {
-  const {signIn, error: authError} = useAuthContext();
+  const {signIn} = useAuthContext();
   const [voter_id, setVoter_Id] = useState('');
   const [password, setPasswod] = useState('');
   const [error, setError] = useState<string>('');

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Image,
 } from 'react-native';
 //
 import {Post, Get} from '../../api';
@@ -12,6 +13,8 @@ import api from '../../config/api';
 import appConfig from '../../config/config';
 import {setItem, getItem, Colors} from '../../utils';
 import {AppText, Loading, PageWrapper} from '../../compoents';
+import {useAuthContext} from '../../context';
+
 //
 interface Candidate {
   _id: string;
@@ -33,12 +36,20 @@ interface voteData {
   uvc: string;
   candidate_id: string;
 }
+interface User {
+  usr_id: string;
+  user_type: string;
+  uvc: string;
+  user_name: string;
+}
 // const candidates = [
 //   {id: 1, name: 'Candidate A'},
 //   {id: 2, name: 'Candidate B'},
 // ];
 //voter dashboard
 const HomeScreen = () => {
+  const {signOut} = useAuthContext();
+  const [user, setUser] = useState<User>({} as User);
   const [candidates, setCandidates] = useState<Candidate[]>([] as Candidate[]);
   const [selectedCandidate, setSelectedCandidate] = useState('');
   const [electionStatus, setElectionStatus] = useState('');
@@ -46,10 +57,24 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   //useEffect
   useEffect(() => {
-    checkProvidedVote();
+    loadUser();
     getElectionStatus();
-    loadCandidates();
   }, []);
+  //load Candidates
+  const loadUser = async () => {
+    try {
+      setLoading(true);
+      const user = await getItem('usr');
+      if (user) {
+        //load candidates and check provided vote
+        loadCandidates(user.usr_id);
+        checkProvidedVote(user.usr_id);
+      }
+      setUser(user);
+    } catch (err) {
+      console.log('err', err);
+    }
+  };
   //get Election Status
   const getElectionStatus = async () => {
     try {
@@ -64,18 +89,15 @@ const HomeScreen = () => {
     }
   };
   //load Candidates
-  const loadCandidates = async () => {
+  const loadCandidates = async (usr_id: string) => {
     try {
       setLoading(true);
-      const user = await getItem('usr');
-      if (user) {
-        const resp = await Get(
-          `${api.SERVER_TEST}/gevs/candidate/get-candidates/${user.usr_id}`,
-        );
-        // console.log('resp:::::', resp.data);
-        const data = resp.data as Candidate[];
-        setCandidates(data);
-      }
+      const resp = await Get(
+        `${api.SERVER_TEST}/gevs/candidate/get-candidates/${usr_id}`,
+      );
+      // console.log('resp:::::', resp.data);
+      const data = resp.data as Candidate[];
+      setCandidates(data);
       setLoading(false);
     } catch (err) {
       console.log('err', err);
@@ -84,13 +106,12 @@ const HomeScreen = () => {
     }
   };
   //check Provided Vote
-  const checkProvidedVote = async () => {
+  const checkProvidedVote = async (usr_id: string) => {
     try {
       setLoading(true);
-      const user = await getItem('usr');
       if (user) {
         const resp = await Get(
-          `${api.SERVER_TEST}/gevs/vote/get?voter_id=${user.usr_id}`,
+          `${api.SERVER_TEST}/gevs/vote/get?voter_id=${usr_id}`,
         );
         // console.log('checkProvidedVote: resp:::::', resp);
         const data = resp;
@@ -110,31 +131,80 @@ const HomeScreen = () => {
   //vote submit handler
   const handleSubmitVote = async () => {
     try {
-      console.log('Vote submitted for candidate:', selectedCandidate);
-      const user = await getItem('usr');
-      const resp = await Post(`${api.SERVER_TEST}/gevs/vote/provide`, {
-        voter_id: user.usr_id,
-        uvc: user.uvc,
-        candidate_id: selectedCandidate,
-      });
-      // console.log('election status:::::', resp.data);
-      if (resp.status === 'success') {
-        setVoteSubmitted(true);
-        Alert.alert(
-          'Success',
-          resp.message,
-          [{text: 'OK', onPress: () => {}}],
-          {cancelable: false},
-        );
+      const resp = await Post(
+        `${api.SERVER_TEST}/gevs/candidate/provide-vote`,
+        {
+          voter_id: user.usr_id,
+          candidate_id: selectedCandidate,
+        },
+      );
+      console.log('resp:::::', resp);
+      if (resp.status == 'success') {
+        const respVote = await Post(`${api.SERVER_TEST}/gevs/vote/provide`, {
+          voter_id: user.usr_id,
+          uvc: user.uvc,
+          candidate_id: selectedCandidate,
+        });
+        // console.log('election status:::::', resp.data);
+        if (respVote.status === 'success') {
+          setVoteSubmitted(true);
+          Alert.alert(
+            'Success',
+            respVote.message,
+            [{text: 'OK', onPress: () => {}}],
+            {cancelable: false},
+          );
+        }
       }
     } catch (err) {}
   };
+
+  //
+  const handleLogout = async () => {
+    Alert.alert(
+      'Confirmation',
+      'Do you want to logout?',
+      [
+        {
+          text: 'No',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: () => {
+            signOut();
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+  // show loading
   if (loading) {
     return <Loading />;
   }
   //render
   return (
     <PageWrapper style={styles.container}>
+      <View style={{flexDirection: 'row', marginLeft: 20}}>
+        <AppText
+          style={{flex: 1, paddingTop: 6}}
+          title={`Welcome, ${user?.user_name || ''}`}
+        />
+        <View style={{justifyContent: 'flex-end', marginRight: 10}}>
+          <TouchableOpacity onPress={handleLogout}>
+            <Image
+              source={require('../../assets/img/logout.png')}
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 10,
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
       <View style={{margin: 20}}>
         <AppText style={styles.title} title="Election Status" />
         <AppText
@@ -153,7 +223,7 @@ const HomeScreen = () => {
           }}
           title={
             electionStatus == 'not-started'
-              ? "It's not started yet, So you won't be able to submit yout vote at this moment."
+              ? "It's not started yet, So you won't be able to submit your vote at this moment."
               : electionStatus == 'ongoing'
               ? 'Election is ongoing now, So You Can cast your vote now.'
               : electionStatus == 'finished'

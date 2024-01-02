@@ -11,7 +11,7 @@ import React, {
 } from 'react';
 import {Post} from '../api';
 import api from '../config/api';
-import {setItem, getItem} from '../utils';
+import {setItem, getItem, removeItem} from '../utils';
 //SignIn Props Type
 interface SignInPropsType {
   voter_id: string;
@@ -24,6 +24,7 @@ interface AuthProviderDataType {
   isAuthenticated: boolean;
   user_type: string;
   signIn: (params: SignInPropsType) => Promise<void>;
+  signOut: () => Promise<void>;
   error: string;
 }
 //INITIAL STATE
@@ -33,6 +34,7 @@ const INITIAL_STATE: AuthProviderDataType = {
   isAuthenticated: false,
   user_type: '',
   signIn: async (_params: SignInPropsType) => {},
+  signOut: async () => {},
   error: '',
 };
 //
@@ -42,6 +44,7 @@ interface AuthProviderType {
 interface User {
   user_type: string;
   uvc: string;
+  user_name: string;
 }
 //
 const AuthProvider = ({children}: AuthProviderType) => {
@@ -87,6 +90,7 @@ const AuthProvider = ({children}: AuthProviderType) => {
           usr_id: params.voter_id,
           user_type: data.user_type,
           uvc: data.uvc,
+          user_name: data.user_name,
         });
         setLoading(false);
       } else {
@@ -96,9 +100,25 @@ const AuthProvider = ({children}: AuthProviderType) => {
       }
     } catch (err) {}
   };
+  //
+  const signOut = async () => {
+    try {
+      const user = await removeItem('usr');
+      setIsAuthenticated(false);
+      setUserType('');
+    } catch (err) {}
+  };
   return (
     <AuthContext.Provider
-      value={{isLoading, token, isAuthenticated, user_type, signIn, error}}>
+      value={{
+        isLoading,
+        token,
+        isAuthenticated,
+        user_type,
+        signIn,
+        error,
+        signOut,
+      }}>
       {children}
     </AuthContext.Provider>
   );
