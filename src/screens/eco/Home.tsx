@@ -12,7 +12,13 @@ import {Post, Get} from '../../api';
 import api from '../../config/api';
 import appConfig from '../../config/config';
 import {setItem, getItem, Colors} from '../../utils';
-import {AppModal, AppText, Loading, PageWrapper} from '../../compoents';
+import {
+  AppModal,
+  AppText,
+  ErrorMessage,
+  Loading,
+  PageWrapper,
+} from '../../compoents';
 import {useAuthContext} from '../../context';
 //
 interface Constituency {
@@ -58,6 +64,8 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [showConstituencyDetails, setConstituencyDetails] = useState(false);
   const [candidates, setCandidates] = useState<Candidate[]>([] as Candidate[]);
+  const [error, setError] = useState<string>('');
+
   //useEffect
   useEffect(() => {
     loadUser();
@@ -83,6 +91,9 @@ const HomeScreen = () => {
         `${api.SERVER_TEST}/gevs/settings/get-status?settingsId=${appConfig.settingsId}`,
       );
       console.log('election status:::::', resp.data);
+      if (resp.status == 'error') {
+        setError(resp?.message as string);
+      }
       const status = resp.data as string;
       setElectionStatus(status);
     } catch (err) {
@@ -94,9 +105,9 @@ const HomeScreen = () => {
     try {
       setLoading(true);
       const resp = await Get(`${api.SERVER_TEST}/gevs/constituency/all`);
-      console.log('resp:::::', resp.data);
+      console.log('resp:::::', resp);
       const data = resp.data as Constituency[];
-      setConstituency(data);
+      setConstituency(data || []);
       setLoading(false);
     } catch (err) {
       console.log('err', err);
@@ -119,7 +130,7 @@ const HomeScreen = () => {
       );
       console.log('resp:::::', resp.data);
       const data = resp.data as Candidate[];
-      console.log('datadatadatadatadata:::::', data);
+      // console.log('datadatadatadatadata:::::', data);
 
       setCandidates(data || []);
       setLoading(false);
@@ -173,7 +184,7 @@ const HomeScreen = () => {
       console.log('resp:::::', resp.data);
       if (resp.status == 'success') {
         const data = resp.data as electionStatus;
-        console.log('datadatadatadatadata:::::', data);
+        // console.log('datadatadatadatadata:::::', data);
         setElectionStatus(data?.election_status);
       }
       // setLoading(false);
@@ -209,6 +220,23 @@ const HomeScreen = () => {
   //render
   return (
     <PageWrapper style={styles.container}>
+      {error !== '' && (
+        <View style={{flexDirection: 'row'}}>
+          <View style={{flex: 1}}>
+            <ErrorMessage message={error} />
+          </View>
+          <TouchableOpacity
+            style={{
+              padding: 10,
+              backgroundColor: 'green',
+              margin: 10,
+              borderRadius: 10,
+            }}
+            onPress={() => setError('')}>
+            <AppText title="Hide" />
+          </TouchableOpacity>
+        </View>
+      )}
       <View style={{flexDirection: 'row', marginLeft: 20}}>
         <AppText
           style={{flex: 1, paddingTop: 6}}
