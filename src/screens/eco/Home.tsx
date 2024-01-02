@@ -6,6 +6,7 @@ import {
   ScrollView,
   Alert,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 //
 import {Post, Get} from '../../api';
@@ -49,6 +50,12 @@ interface postResponse {
 interface electionStatus {
   election_status: string;
 }
+//
+interface ElectionResult {
+  status: string;
+  winner: string;
+  seats: {party: string; seat: string}[];
+}
 // const candidates = [
 //   {id: 1, name: 'Candidate A'},
 //   {id: 2, name: 'Candidate B'},
@@ -63,8 +70,15 @@ const HomeScreen = () => {
   const [electionStatus, setElectionStatus] = useState('');
   const [loading, setLoading] = useState(true);
   const [showConstituencyDetails, setConstituencyDetails] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   const [candidates, setCandidates] = useState<Candidate[]>([] as Candidate[]);
   const [error, setError] = useState<string>('');
+  const [electionResult, setElectionResult] = useState<ElectionResult>({
+    status: '',
+    winner: '',
+    seats: [],
+  });
+  //
 
   //useEffect
   useEffect(() => {
@@ -141,7 +155,7 @@ const HomeScreen = () => {
     }
   };
   //load Constituency Results
-  const handleElection = async (cons_name: string) => {
+  const handleElection = () => {
     Alert.alert(
       'Confirmation',
       `Do you want to ${
@@ -212,6 +226,24 @@ const HomeScreen = () => {
       ],
       {cancelable: false},
     );
+  };
+  //load Constituency Results
+  const handleShowResults = async () => {
+    try {
+      setShowResults(true);
+      setLoading(true);
+      const resp = await Get(`${api.SERVER_TEST}/gevs/results`);
+      console.log('resp:::::', resp);
+      if (resp.status == 'success') {
+        const data = resp.data as ElectionResult;
+        setElectionResult(data);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.log('err', err);
+    } finally {
+      setLoading(false);
+    }
   };
   // show loading
   if (loading) {
@@ -314,6 +346,9 @@ const HomeScreen = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
+      <TouchableOpacity onPress={handleShowResults} style={styles.submitButton}>
+        <AppText title={'Show Results'} style={{fontWeight: 'bold'}} />
+      </TouchableOpacity>
       {showConstituencyDetails && (
         <AppModal
           closeModal={() => setConstituencyDetails(false)}
@@ -400,6 +435,100 @@ const HomeScreen = () => {
           </View>
         </AppModal>
       )}
+      {showResults && (
+        <AppModal
+          closeModal={() => setShowResults(false)}
+          hideClose={false}
+          style={{backgroundColor: '#EFF4FA'}}>
+          <View style={{flex: 1, marginVertical: 16}}>
+            {/* <Loading /> */}
+            <ScrollView style={{flex: 1, margin: 20}}>
+              {electionResult?.seats.length > 0 ? (
+                <View>
+                  <View>
+                    <AppText title={'Election Status:'} />
+                    <AppText title={electionResult.status} />
+                  </View>
+                  <View>
+                    <AppText title={'Election Winner:'} />
+                    <AppText title={electionResult.winner} />
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      backgroundColor: '#4caf50',
+                    }}>
+                    <View
+                      style={{
+                        flex: 1,
+                        padding: 2,
+                        margin: 5,
+                      }}>
+                      <AppText title={'Party'} />
+                    </View>
+                    <View
+                      style={{
+                        flex: 1,
+                        padding: 2,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <AppText title={'Seats'} style={{}} />
+                    </View>
+                  </View>
+                  {electionResult?.seats.map(res => (
+                    <View key={res.party}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          padding: 2,
+                          margin: 5,
+                        }}>
+                        <View
+                          style={{
+                            flex: 1,
+                          }}>
+                          <AppText
+                            title={res.party}
+                            style={{
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                            }}
+                          />
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}>
+                          <AppText
+                            title={res.seat}
+                            style={{
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View
+                        style={{backgroundColor: '#7D808B', height: 1}}></View>
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <AppText title={'No Candidates Found.'} />
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </AppModal>
+      )}
     </PageWrapper>
   );
 };
@@ -432,7 +561,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
   },
   voteSubmittedText: {
     marginTop: 20,

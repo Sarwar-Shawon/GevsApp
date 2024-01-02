@@ -11,27 +11,26 @@ import {
   TextStyle,
   Platform,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
 import {useAuthContext} from '../../context';
 
 import {PageWrapper, AppText, ErrorMessage} from '../../compoents';
 import {Colors} from '../../utils';
 import {StackAuthProps} from '../../route/AuthRoutes';
-import {Post, Get} from '../../api';
-import api from '../../config/api';
 
 //SignInScreen
 const SignInScreen = ({navigation}: StackAuthProps) => {
-  const {signIn} = useAuthContext();
+  const {signIn, error: signInError} = useAuthContext();
+  const [loading, setLoading] = useState(false);
   const [voter_id, setVoter_Id] = useState('');
   const [password, setPasswod] = useState('');
   const [error, setError] = useState<string>('');
-  //eamil valid check
-  const isValidEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
   const refPasswordInput = useRef<TextInput>(null);
+  //
+  useEffect(() => {
+    setError(signInError);
+  }, [signInError]);
   //
   const onSignInPress = async () => {
     try {
@@ -44,10 +43,12 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
         setError('Enter valid email and password');
         return;
       }
-      // SetLoading(true);
+      setLoading(true);
       await signIn({voter_id, password});
-      // SetLoading(false);
-    } catch (err) {}
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+    }
   };
   //
   const onForgotPress = async () => {
@@ -105,9 +106,23 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
             autoCapitalize="none"
             secureTextEntry={true}
           />
-          <TouchableOpacity onPress={onSignInPress} style={styles.signInBtn}>
-            <AppText title={'SignIn'} style={{fontWeight: 'bold'}} />
-          </TouchableOpacity>
+          {loading ? (
+            <TouchableOpacity style={styles.signInBtn} onPress={() => {}}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <ActivityIndicator size={'small'} color={Colors.primary} />
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={onSignInPress} style={styles.signInBtn}>
+              <AppText title={'SignIn'} style={{fontWeight: 'bold'}} />
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             onPress={() => navigation.navigate('ForgotPassword')}>
             <AppText

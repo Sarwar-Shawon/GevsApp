@@ -6,6 +6,7 @@ import {
   ScrollView,
   Alert,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 //
 import {Post, Get} from '../../api';
@@ -55,6 +56,8 @@ const HomeScreen = () => {
   const [electionStatus, setElectionStatus] = useState('');
   const [voteSubmitted, setVoteSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitLoading, setSubmitLoading] = useState(false);
+
   //useEffect
   useEffect(() => {
     loadUser();
@@ -131,6 +134,7 @@ const HomeScreen = () => {
   //vote submit handler
   const handleSubmitVote = async () => {
     try {
+      setSubmitLoading(true);
       const resp = await Post(
         `${api.SERVER_TEST}/gevs/candidate/provide-vote`,
         {
@@ -156,7 +160,10 @@ const HomeScreen = () => {
           );
         }
       }
-    } catch (err) {}
+      setSubmitLoading(false);
+    } catch (err) {
+      setSubmitLoading(false);
+    }
   };
 
   //
@@ -255,32 +262,44 @@ const HomeScreen = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
-      {!voteSubmitted && selectedCandidate !== null && (
-        <TouchableOpacity
-          style={[
-            styles.submitButton,
-            {
-              backgroundColor:
-                electionStatus == 'not-started'
-                  ? '#7D808B'
-                  : electionStatus == 'ongoing'
-                  ? '#4caf50'
-                  : electionStatus == 'finished'
-                  ? '#7D808B'
-                  : Colors.text_color,
-            },
-          ]}
-          onPress={handleSubmitVote}
-          disabled={
-            /* electionStatus == 'not-started'
+      {submitLoading ? (
+        <TouchableOpacity style={styles.submitButton} onPress={() => {}}>
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <ActivityIndicator size={'small'} color={Colors.primary} />
+          </View>
+        </TouchableOpacity>
+      ) : (
+        !voteSubmitted &&
+        selectedCandidate !== null && (
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              {
+                backgroundColor:
+                  electionStatus == 'not-started'
+                    ? '#7D808B'
+                    : electionStatus == 'ongoing'
+                    ? '#4caf50'
+                    : electionStatus == 'finished'
+                    ? '#7D808B'
+                    : Colors.text_color,
+              },
+            ]}
+            onPress={handleSubmitVote}
+            disabled={
+              /* electionStatus == 'not-started'
               ? true
               : electionStatus == 'finished'
               ? true
               : */ voteSubmitted
-          }>
-          <AppText style={styles.submitButtonText} title={'Submit Vote'} />
-        </TouchableOpacity>
+            }>
+            <AppText style={styles.submitButtonText} title={'Submit Vote'} />
+          </TouchableOpacity>
+        )
       )}
     </PageWrapper>
   );

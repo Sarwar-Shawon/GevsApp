@@ -79,10 +79,10 @@ const AuthProvider = ({children}: AuthProviderType) => {
   //
   const signIn = async (params: SignInPropsType) => {
     try {
+      setError('');
       const resp = await Post(`${api.SERVER_TEST}/gevs/auth/login`, params);
       console.log('resp:::::', resp);
       if (resp.status === 'success') {
-        // setToken(response.token);
         const data = resp?.data as User;
         setUserType(data.user_type);
         setIsAuthenticated(true);
