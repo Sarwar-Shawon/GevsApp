@@ -21,6 +21,7 @@ import {
   PageWrapper,
 } from '../../compoents';
 import {useAuthContext} from '../../context';
+import ElectionResults from '../voter/ElectionResults';
 //
 interface Constituency {
   label: string;
@@ -51,11 +52,7 @@ interface electionStatus {
   election_status: string;
 }
 //
-interface ElectionResult {
-  status: string;
-  winner: string;
-  seats: {party: string; seat: string}[];
-}
+
 // const candidates = [
 //   {id: 1, name: 'Candidate A'},
 //   {id: 2, name: 'Candidate B'},
@@ -69,16 +66,11 @@ const HomeScreen = () => {
   );
   const [electionStatus, setElectionStatus] = useState('');
   const [loading, setLoading] = useState(true);
-  const [contentLoading, setContentLoading] = useState(false);
   const [showConstituencyDetails, setConstituencyDetails] = useState(false);
-  const [showResults, setShowResults] = useState(false);
   const [candidates, setCandidates] = useState<Candidate[]>([] as Candidate[]);
   const [error, setError] = useState<string>('');
-  const [electionResult, setElectionResult] = useState<ElectionResult>({
-    status: '',
-    winner: '',
-    seats: [],
-  });
+  const [contentLoading, setContentLoading] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   //
 
   //useEffect
@@ -227,23 +219,6 @@ const HomeScreen = () => {
       {cancelable: false},
     );
   };
-  //load Constituency Results
-  const handleShowResults = async () => {
-    try {
-      setShowResults(true);
-      setContentLoading(true);
-      const resp = await Get(`${api.SERVER_TEST}/gevs/results`);
-      console.log('resp:::::', resp);
-      if (resp.status == 'success') {
-        const data = resp.data as ElectionResult;
-        setElectionResult(data);
-      }
-    } catch (err) {
-      console.log('err', err);
-    } finally {
-      setContentLoading(false);
-    }
-  };
   //publish results
   const publishResults = async () => {
     try {
@@ -262,6 +237,7 @@ const HomeScreen = () => {
           [{text: 'OK', onPress: () => {}}],
           {cancelable: false},
         );
+        setElectionStatus('published');
       }
     } catch (err) {
       console.log('err', err);
@@ -378,7 +354,9 @@ const HomeScreen = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-      <TouchableOpacity onPress={handleShowResults} style={styles.submitButton}>
+      <TouchableOpacity
+        onPress={() => setShowResults(true)}
+        style={styles.submitButton}>
         <AppText title={'Show Results'} style={{fontWeight: 'bold'}} />
       </TouchableOpacity>
       {showConstituencyDetails && (
@@ -468,145 +446,12 @@ const HomeScreen = () => {
         </AppModal>
       )}
       {showResults && (
-        <AppModal
+        <ElectionResults
           closeModal={() => setShowResults(false)}
-          hideClose={false}
-          style={{backgroundColor: '#EFF4FA'}}>
-          <View style={{flex: 1, marginVertical: 16}}>
-            {contentLoading && <Loading />}
-            <ScrollView style={{flex: 1, margin: 20}}>
-              {electionResult?.seats.length > 0 ? (
-                <View>
-                  <View style={{flexDirection: 'row', marginVertical: 2}}>
-                    <View style={{flex: 1}}>
-                      <AppText
-                        title={'Election Status  :'}
-                        style={{fontWeight: '500'}}
-                      />
-                    </View>
-                    <View style={{flex: 1}}>
-                      <AppText
-                        title={electionResult.status}
-                        style={{
-                          color:
-                            electionResult.status == 'Pending'
-                              ? '#F66B0E'
-                              : '#4caf50',
-                          fontWeight: '500',
-                        }}
-                      />
-                    </View>
-                  </View>
-                  <View style={{flexDirection: 'row'}}>
-                    <View style={{flex: 1}}>
-                      <AppText
-                        title={'Election Winner :'}
-                        style={{fontWeight: '500'}}
-                      />
-                    </View>
-                    <View style={{flex: 1}}>
-                      <AppText
-                        title={electionResult.winner}
-                        style={{
-                          color:
-                            electionResult.winner == 'Pending'
-                              ? '#F66B0E'
-                              : electionResult.winner == 'Hung Parliament'
-                              ? '#CC381B'
-                              : '#4caf50',
-                          fontWeight: '500',
-                        }}
-                      />
-                    </View>
-                  </View>
-                  <View style={{marginVertical: 10}}>
-                    <AppText title={'Results:'} style={{fontWeight: '500'}} />
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      backgroundColor: '#4caf50',
-                    }}>
-                    <View
-                      style={{
-                        flex: 1,
-                        padding: 2,
-                        margin: 5,
-                      }}>
-                      <AppText title={'Party'} />
-                    </View>
-                    <View
-                      style={{
-                        flex: 1,
-                        padding: 2,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <AppText title={'Seats'} style={{}} />
-                    </View>
-                  </View>
-                  {electionResult?.seats.map(res => (
-                    <View key={res.party}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          padding: 2,
-                          margin: 5,
-                        }}>
-                        <View
-                          style={{
-                            flex: 1,
-                          }}>
-                          <AppText
-                            title={res.party}
-                            style={{
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                            }}
-                          />
-                        </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          <AppText
-                            title={res.seat}
-                            style={{
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                            }}
-                          />
-                        </View>
-                      </View>
-                      <View
-                        style={{backgroundColor: '#7D808B', height: 1}}></View>
-                    </View>
-                  ))}
-                </View>
-              ) : (
-                <View
-                  style={{
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <AppText title={'No Candidates Found.'} />
-                </View>
-              )}
-            </ScrollView>
-            {electionResult.status == 'Completed' && (
-              <TouchableOpacity
-                onPress={publishResults}
-                style={styles.submitButton}>
-                <AppText
-                  title={'Publish Results'}
-                  style={{fontWeight: 'bold'}}
-                />
-              </TouchableOpacity>
-            )}
-          </View>
-        </AppModal>
+          showPublish={true}
+          electionStatus={electionStatus}
+          publishResults={publishResults}
+        />
       )}
     </PageWrapper>
   );

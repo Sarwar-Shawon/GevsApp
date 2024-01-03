@@ -15,7 +15,7 @@ import appConfig from '../../config/config';
 import {setItem, getItem, Colors} from '../../utils';
 import {AppText, Loading, PageWrapper} from '../../compoents';
 import {useAuthContext} from '../../context';
-
+import ElectionResults from './ElectionResults';
 //
 interface Candidate {
   _id: string;
@@ -57,6 +57,7 @@ const HomeScreen = () => {
   const [voteSubmitted, setVoteSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [showResult, setShowResult] = useState(false);
 
   //useEffect
   useEffect(() => {
@@ -226,6 +227,8 @@ const HomeScreen = () => {
                 ? '#5B8A72'
                 : electionStatus == 'finished'
                 ? '#CC381B'
+                : electionStatus == 'published'
+                ? '#03C988'
                 : Colors.text_color,
           }}
           title={
@@ -235,9 +238,18 @@ const HomeScreen = () => {
               ? 'Election is ongoing now, So You Can cast your vote now.'
               : electionStatus == 'finished'
               ? 'The election has finished.'
+              : electionStatus == 'published'
+              ? 'The results has been published.'
               : ''
           }
         />
+        {electionStatus == 'published' && (
+          <TouchableOpacity
+            style={[styles.submitButton]}
+            onPress={() => setShowResult(true)}>
+            <AppText title={'Show Result'} />
+          </TouchableOpacity>
+        )}
       </View>
       <View style={{marginLeft: 20}}>
         <AppText style={styles.title} title="Cast Your Vote" />
@@ -301,6 +313,9 @@ const HomeScreen = () => {
           </TouchableOpacity>
         )
       )}
+      {showResult && (
+        <ElectionResults closeModal={() => setShowResult(false)} />
+      )}
     </PageWrapper>
   );
 };
@@ -332,7 +347,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   submitButtonText: {
-    color: '#fff',
+    color: Colors.text_color,
     fontSize: 16,
   },
   voteSubmittedText: {
