@@ -69,6 +69,7 @@ const HomeScreen = () => {
   );
   const [electionStatus, setElectionStatus] = useState('');
   const [loading, setLoading] = useState(true);
+  const [contentLoading, setContentLoading] = useState(false);
   const [showConstituencyDetails, setConstituencyDetails] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [candidates, setCandidates] = useState<Candidate[]>([] as Candidate[]);
@@ -138,7 +139,7 @@ const HomeScreen = () => {
   const loadConstituencyResults = async (cons_name: string) => {
     try {
       console.log('cons_name', cons_name);
-      setLoading(true);
+      setContentLoading(true);
       const resp = await Get(
         `${api.SERVER_TEST}/gevs/constituency/${cons_name}`,
       );
@@ -147,11 +148,10 @@ const HomeScreen = () => {
       // console.log('datadatadatadatadata:::::', data);
 
       setCandidates(data || []);
-      setLoading(false);
     } catch (err) {
       console.log('err', err);
     } finally {
-      setLoading(false);
+      setContentLoading(false);
     }
   };
   //load Constituency Results
@@ -231,18 +231,34 @@ const HomeScreen = () => {
   const handleShowResults = async () => {
     try {
       setShowResults(true);
-      setLoading(true);
+      setContentLoading(true);
       const resp = await Get(`${api.SERVER_TEST}/gevs/results`);
       console.log('resp:::::', resp);
       if (resp.status == 'success') {
         const data = resp.data as ElectionResult;
         setElectionResult(data);
       }
-      setLoading(false);
     } catch (err) {
       console.log('err', err);
     } finally {
-      setLoading(false);
+      setContentLoading(false);
+    }
+  };
+  //publish results
+  const publishResults = async () => {
+    try {
+      setShowResults(true);
+      setContentLoading(true);
+      const resp = await Get(`${api.SERVER_TEST}/gevs/results`);
+      console.log('resp:::::', resp);
+      if (resp.status == 'success') {
+        const data = resp.data as ElectionResult;
+        setElectionResult(data);
+      }
+    } catch (err) {
+      console.log('err', err);
+    } finally {
+      setContentLoading(false);
     }
   };
   // show loading
@@ -271,7 +287,7 @@ const HomeScreen = () => {
       )}
       <View style={{flexDirection: 'row', marginLeft: 20}}>
         <AppText
-          style={{flex: 1, paddingTop: 6}}
+          style={{flex: 1, paddingTop: 6, fontWeight: '500'}}
           title={`Welcome, ${user?.user_name || ''}`}
         />
         <View style={{justifyContent: 'flex-end', marginRight: 10}}>
@@ -288,48 +304,56 @@ const HomeScreen = () => {
         </View>
       </View>
       <View style={{margin: 20}}>
-        <AppText style={styles.title} title="Election Status" />
+        <AppText style={styles.title} title="Election Status:" />
         <AppText
           style={{
             marginTop: 5,
             fontFamily: 'bold',
             fontSize: 16,
+            fontWeight: '500',
             color:
-              electionStatus == 'not-started' || electionStatus == 'finished'
-                ? '#F66B0E'
+              electionStatus == 'not-started'
+                ? '#005B41'
                 : electionStatus == 'ongoing'
                 ? '#5B8A72'
+                : electionStatus == 'finished'
+                ? '#F66B0E'
                 : Colors.text_color,
           }}
           title={
-            electionStatus == 'not-started' || electionStatus == 'finished'
+            electionStatus == 'not-started'
               ? "It's not started yet, Do you want to start the election?"
               : electionStatus == 'ongoing'
-              ? 'Election is ongoing now, Do you want to stop the election.'
+              ? 'Election is ongoing now, Do you want to stop the election?'
+              : electionStatus == 'finished'
+              ? 'Election is Finished.'
               : ''
           }
         />
-        <TouchableOpacity
-          style={{
-            backgroundColor:
-              electionStatus == 'not-started' || electionStatus == 'finished'
-                ? '#4caf50'
-                : '#F66B0E',
-            padding: 10,
-            margin: 20,
-            borderRadius: 8,
-            alignItems: 'center',
-          }}
-          onPress={() => handleElection()}>
-          <AppText
-            style={{color: '#000000'}}
-            title={
-              electionStatus == 'not-started' || electionStatus == 'finished'
-                ? 'Start'
-                : 'Stop'
-            }
-          />
-        </TouchableOpacity>
+        {electionStatus != 'finished' && (
+          <TouchableOpacity
+            style={{
+              backgroundColor:
+                electionStatus == 'not-started' || electionStatus == 'finished'
+                  ? '#4caf50'
+                  : '#F66B0E',
+              padding: 10,
+              margin: 20,
+              borderRadius: 8,
+              alignItems: 'center',
+            }}
+            disabled={electionStatus == 'finished'}
+            onPress={() => handleElection()}>
+            <AppText
+              style={{color: '#000000', fontWeight: '500'}}
+              title={
+                electionStatus == 'not-started' || electionStatus == 'finished'
+                  ? 'Start Election'
+                  : 'Stop Election'
+              }
+            />
+          </TouchableOpacity>
+        )}
       </View>
       <View style={{marginLeft: 20}}>
         <AppText style={styles.title} title="All Constituency" />
@@ -355,7 +379,7 @@ const HomeScreen = () => {
           hideClose={false}
           style={{backgroundColor: '#EFF4FA'}}>
           <View style={{flex: 1, marginVertical: 16}}>
-            {/* <Loading /> */}
+            {contentLoading && <Loading />}
             <ScrollView style={{flex: 1, margin: 20}}>
               {candidates.length > 0 ? (
                 <View>
@@ -370,7 +394,7 @@ const HomeScreen = () => {
                         padding: 2,
                         margin: 5,
                       }}>
-                      <AppText title={'Name'} />
+                      <AppText title={'Candidate Name'} />
                     </View>
                     <View
                       style={{
@@ -441,17 +465,54 @@ const HomeScreen = () => {
           hideClose={false}
           style={{backgroundColor: '#EFF4FA'}}>
           <View style={{flex: 1, marginVertical: 16}}>
-            {/* <Loading /> */}
+            {contentLoading && <Loading />}
             <ScrollView style={{flex: 1, margin: 20}}>
               {electionResult?.seats.length > 0 ? (
                 <View>
-                  <View>
-                    <AppText title={'Election Status:'} />
-                    <AppText title={electionResult.status} />
+                  <View style={{flexDirection: 'row', marginVertical: 2}}>
+                    <View style={{flex: 1}}>
+                      <AppText
+                        title={'Election Status  :'}
+                        style={{fontWeight: '500'}}
+                      />
+                    </View>
+                    <View style={{flex: 1}}>
+                      <AppText
+                        title={electionResult.status}
+                        style={{
+                          color:
+                            electionResult.status == 'Pending'
+                              ? '#F66B0E'
+                              : '#4caf50',
+                          fontWeight: '500',
+                        }}
+                      />
+                    </View>
                   </View>
-                  <View>
-                    <AppText title={'Election Winner:'} />
-                    <AppText title={electionResult.winner} />
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flex: 1}}>
+                      <AppText
+                        title={'Election Winner :'}
+                        style={{fontWeight: '500'}}
+                      />
+                    </View>
+                    <View style={{flex: 1}}>
+                      <AppText
+                        title={electionResult.winner}
+                        style={{
+                          color:
+                            electionResult.winner == 'Pending'
+                              ? '#F66B0E'
+                              : electionResult.winner == 'Hung Parliament'
+                              ? '#CC381B'
+                              : '#4caf50',
+                          fontWeight: '500',
+                        }}
+                      />
+                    </View>
+                  </View>
+                  <View style={{marginVertical: 10}}>
+                    <AppText title={'Results:'} style={{fontWeight: '500'}} />
                   </View>
                   <View
                     style={{
@@ -526,6 +587,16 @@ const HomeScreen = () => {
                 </View>
               )}
             </ScrollView>
+            {electionResult.status == 'Completed' && (
+              <TouchableOpacity
+                onPress={publishResults}
+                style={styles.submitButton}>
+                <AppText
+                  title={'Publish Results'}
+                  style={{fontWeight: 'bold'}}
+                />
+              </TouchableOpacity>
+            )}
           </View>
         </AppModal>
       )}
@@ -540,6 +611,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     color: Colors.text_color,
+    fontWeight: '500',
   },
   candidateButton: {
     backgroundColor: '#e0e0e0',
