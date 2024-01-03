@@ -160,9 +160,9 @@ const HomeScreen = () => {
       'Confirmation',
       `Do you want to ${
         electionStatus == 'not-started' || electionStatus == 'finished'
-          ? 'Start'
-          : 'Stop'
-      } the election?`,
+          ? 'Start the election ?'
+          : 'Stop the election? Once you have stopped the election you will not be able to stat it again.'
+      }`,
       [
         {
           text: 'No',
@@ -247,18 +247,27 @@ const HomeScreen = () => {
   //publish results
   const publishResults = async () => {
     try {
-      setShowResults(true);
       setContentLoading(true);
-      const resp = await Get(`${api.SERVER_TEST}/gevs/results`);
-      console.log('resp:::::', resp);
-      if (resp.status == 'success') {
-        const data = resp.data as ElectionResult;
-        setElectionResult(data);
+      const resp = await Post(
+        `${api.SERVER_TEST}/gevs/settings/update-status`,
+        {
+          settingsId: 'Shangri-La-Election',
+          status: 'published',
+        },
+      );
+      if (resp.status === 'success') {
+        Alert.alert(
+          'Success',
+          'The results have been published',
+          [{text: 'OK', onPress: () => {}}],
+          {cancelable: false},
+        );
       }
     } catch (err) {
       console.log('err', err);
     } finally {
-      setContentLoading(false);
+      setContentLoading(true);
+      setShowResults(false);
     }
   };
   // show loading
@@ -312,8 +321,8 @@ const HomeScreen = () => {
             fontSize: 16,
             fontWeight: '500',
             color:
-              electionStatus == 'not-started'
-                ? '#005B41'
+              electionStatus == 'not-started' || electionStatus == 'published'
+                ? '#03C988'
                 : electionStatus == 'ongoing'
                 ? '#5B8A72'
                 : electionStatus == 'finished'
@@ -327,27 +336,26 @@ const HomeScreen = () => {
               ? 'Election is ongoing now, Do you want to stop the election?'
               : electionStatus == 'finished'
               ? 'Election is Finished.'
+              : electionStatus == 'published'
+              ? 'Election result has been published.'
               : ''
           }
         />
-        {electionStatus != 'finished' && (
+        {(electionStatus == 'not-started' || electionStatus == 'ongloing') && (
           <TouchableOpacity
             style={{
               backgroundColor:
-                electionStatus == 'not-started' || electionStatus == 'finished'
-                  ? '#4caf50'
-                  : '#F66B0E',
+                electionStatus == 'not-started' ? '#4caf50' : '#F66B0E',
               padding: 10,
               margin: 20,
               borderRadius: 8,
               alignItems: 'center',
             }}
-            disabled={electionStatus == 'finished'}
             onPress={() => handleElection()}>
             <AppText
               style={{color: '#000000', fontWeight: '500'}}
               title={
-                electionStatus == 'not-started' || electionStatus == 'finished'
+                electionStatus == 'not-started'
                   ? 'Start Election'
                   : 'Stop Election'
               }
