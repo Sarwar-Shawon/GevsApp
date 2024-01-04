@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 //
 import {Post, Get} from '../../api';
-import api from '../../config/api';
+import apiConfig from '../../config/apiConfig';
 import appConfig from '../../config/config';
 import {setItem, getItem, Colors} from '../../utils';
 import {AppText, Loading, PageWrapper} from '../../compoents';
@@ -83,7 +83,8 @@ const HomeScreen = () => {
   const getElectionStatus = async () => {
     try {
       const resp = await Get(
-        `${api.SERVER_TEST}/gevs/settings/get-status?settingsId=${appConfig.settingsId}`,
+        // `${apiConfig.SERVER_TEST}/gevs/settings/get-status?settingsId=${appConfig.settingsId}`,
+        `/settings/get-status?settingsId=${appConfig.settingsId}`,
       );
       console.log('election status:::::', resp.data);
       const status = resp.data as string;
@@ -97,7 +98,8 @@ const HomeScreen = () => {
     try {
       setLoading(true);
       const resp = await Get(
-        `${api.SERVER_TEST}/gevs/candidate/get-candidates/${usr_id}`,
+        // `${apiConfig.SERVER_TEST}/gevs/candidate/get-candidates/${usr_id}`,
+        `/candidate/get-candidates/${usr_id}`,
       );
       // console.log('resp:::::', resp.data);
       const data = resp.data as Candidate[];
@@ -115,7 +117,8 @@ const HomeScreen = () => {
       setLoading(true);
       if (user) {
         const resp = await Get(
-          `${api.SERVER_TEST}/gevs/vote/get?voter_id=${usr_id}`,
+          `/vote/get?voter_id=${usr_id}`,
+          // `${apiConfig.SERVER_TEST}/gevs/vote/get?voter_id=${usr_id}`,
         );
         // console.log('checkProvidedVote: resp:::::', resp);
         const data = resp;
@@ -135,9 +138,19 @@ const HomeScreen = () => {
   //vote submit handler
   const handleSubmitVote = async () => {
     try {
+      if (!selectedCandidate) {
+        Alert.alert(
+          'Error',
+          'Please select a candidate first.',
+          [{text: 'OK', onPress: () => {}}],
+          {cancelable: false},
+        );
+        return;
+      }
       setSubmitLoading(true);
       const resp = await Post(
-        `${api.SERVER_TEST}/gevs/candidate/provide-vote`,
+        // `${apiConfig.SERVER_TEST}/gevs/candidate/provide-vote`,
+        `/candidate/provide-vote`,
         {
           voter_id: user.usr_id,
           candidate_id: selectedCandidate,
@@ -145,11 +158,15 @@ const HomeScreen = () => {
       );
       console.log('resp:::::', resp);
       if (resp.status == 'success') {
-        const respVote = await Post(`${api.SERVER_TEST}/gevs/vote/provide`, {
-          voter_id: user.usr_id,
-          uvc: user.uvc,
-          candidate_id: selectedCandidate,
-        });
+        const respVote = await Post(
+          // `${apiConfig.SERVER_TEST}/gevs/vote/provide`,
+          `/vote/provide`,
+          {
+            voter_id: user.usr_id,
+            uvc: user.uvc,
+            candidate_id: selectedCandidate,
+          },
+        );
         // console.log('election status:::::', resp.data);
         if (respVote.status === 'success') {
           setVoteSubmitted(true);
@@ -235,7 +252,9 @@ const HomeScreen = () => {
             electionStatus == 'not-started'
               ? "It's not started yet, So you won't be able to submit your vote at this moment."
               : electionStatus == 'ongoing'
-              ? 'Election is ongoing now, So You Can cast your vote now.'
+              ? `Election is ongoing now${
+                  !voteSubmitted ? ', So You Can cast your vote now' : ''
+                }.`
               : electionStatus == 'finished'
               ? 'The election has finished.'
               : electionStatus == 'published'
@@ -261,18 +280,27 @@ const HomeScreen = () => {
         />
       )}
       <ScrollView style={{flex: 1, margin: 20}}>
-        {candidates.map(candidate => (
-          <TouchableOpacity
-            key={candidate._id}
-            style={[
-              styles.candidateButton,
-              selectedCandidate === candidate._id && styles.selectedCandidate,
-            ]}
-            onPress={() => setSelectedCandidate(candidate._id)}
-            disabled={voteSubmitted}>
-            <AppText style={{color: '#000000'}} title={candidate.candidate} />
-          </TouchableOpacity>
-        ))}
+        {candidates.length > 0 ? (
+          candidates.map(candidate => (
+            <TouchableOpacity
+              key={candidate._id}
+              style={[
+                styles.candidateButton,
+                selectedCandidate === candidate._id && styles.selectedCandidate,
+              ]}
+              onPress={() => setSelectedCandidate(candidate._id)}
+              disabled={voteSubmitted}>
+              <AppText
+                style={{color: '#000000', fontWeight: '500'}}
+                title={candidate.candidate}
+              />
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <AppText style={styles.title} title="No candidates found." />
+          </View>
+        )}
       </ScrollView>
       {submitLoading ? (
         <TouchableOpacity style={styles.submitButton} onPress={() => {}}>
@@ -303,11 +331,11 @@ const HomeScreen = () => {
             ]}
             onPress={handleSubmitVote}
             disabled={
-              /* electionStatus == 'not-started'
-              ? true
-              : electionStatus == 'finished'
-              ? true
-              : */ voteSubmitted
+              electionStatus == 'not-started'
+                ? true
+                : electionStatus == 'finished'
+                ? true
+                : voteSubmitted
             }>
             <AppText style={styles.submitButtonText} title={'Submit Vote'} />
           </TouchableOpacity>

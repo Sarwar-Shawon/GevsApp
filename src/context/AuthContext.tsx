@@ -9,8 +9,9 @@ import React, {
   useState,
   useEffect,
 } from 'react';
-import {Post} from '../api';
-import api from '../config/api';
+import {PublicPost, Post} from '../api';
+import apiConfig from '../config/apiConfig';
+import * as Keychain from 'react-native-keychain';
 import {setItem, getItem, removeItem} from '../utils';
 //SignIn Props Type
 interface SignInPropsType {
@@ -45,6 +46,8 @@ interface User {
   user_type: string;
   uvc: string;
   user_name: string;
+  refreshToken: string;
+  accessToken: string;
 }
 //
 const AuthProvider = ({children}: AuthProviderType) => {
@@ -65,7 +68,6 @@ const AuthProvider = ({children}: AuthProviderType) => {
       setLoading(true);
       const user = await getItem('usr');
       // console.log('user:::', user);
-
       if (user) {
         setIsAuthenticated(true);
         setUserType(user.user_type);
@@ -80,7 +82,10 @@ const AuthProvider = ({children}: AuthProviderType) => {
   const signIn = async (params: SignInPropsType) => {
     try {
       setError('');
-      const resp = await Post(`${api.SERVER_TEST}/gevs/auth/login`, params);
+      const resp = await PublicPost(
+        `${apiConfig.SERVER_TEST}/gevs/auth/login`,
+        params,
+      );
       console.log('resp:::::', resp);
       if (resp.status === 'success') {
         const data = resp?.data as User;
@@ -92,6 +97,13 @@ const AuthProvider = ({children}: AuthProviderType) => {
           uvc: data.uvc,
           user_name: data.user_name,
         });
+        await Keychain.setGenericPassword(
+          'token',
+          JSON.stringify({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+          }),
+        );
         setLoading(false);
       } else {
         setError(resp.message ? resp.message : '');
@@ -103,9 +115,19 @@ const AuthProvider = ({children}: AuthProviderType) => {
   //
   const signOut = async () => {
     try {
-      const user = await removeItem('usr');
-      setIsAuthenticated(false);
-      setUserType('');
+      const value = await Keychain.getGenericPassword();
+      const jwt = JSON.parse(value ? value.password : '');
+
+      const resp = await Post(`/auth/logout`, {
+        refreshToken: jwt.refreshToken,
+      });
+      console.log('resprespresp:::', resp);
+      if (resp.status == 'success') {
+        await removeItem('usr');
+        await Keychain.resetGenericPassword();
+        setIsAuthenticated(false);
+        setUserType('');
+      }
     } catch (err) {}
   };
   return (

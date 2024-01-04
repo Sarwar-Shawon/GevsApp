@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 //
 import {Post, Get} from '../../api';
-import api from '../../config/api';
+import apiConfig from '../../config/apiConfig';
 import appConfig from '../../config/config';
 import {setItem, getItem, Colors} from '../../utils';
 import {
@@ -95,7 +95,8 @@ const HomeScreen = () => {
   const getElectionStatus = async () => {
     try {
       const resp = await Get(
-        `${api.SERVER_TEST}/gevs/settings/get-status?settingsId=${appConfig.settingsId}`,
+        // `${apiConfig.SERVER_TEST}/gevs/settings/get-status?settingsId=${appConfig.settingsId}`,
+        `/settings/get-status?settingsId=${appConfig.settingsId}`,
       );
       console.log('election status:::::', resp.data);
       if (resp.status == 'error') {
@@ -111,7 +112,8 @@ const HomeScreen = () => {
   const loadConstituency = async () => {
     try {
       setLoading(true);
-      const resp = await Get(`${api.SERVER_TEST}/gevs/constituency/all`);
+      // const resp = await Get(`${apiConfig.SERVER_TEST}/gevs/constituency/all`);
+      const resp = await Get(`/constituency/all`);
       console.log('resp:::::', resp);
       const data = resp.data as Constituency[];
       setConstituency(data || []);
@@ -133,7 +135,8 @@ const HomeScreen = () => {
       console.log('cons_name', cons_name);
       setContentLoading(true);
       const resp = await Get(
-        `${api.SERVER_TEST}/gevs/constituency/${cons_name}`,
+        `/constituency/${cons_name}`,
+        // `${apiConfig.SERVER_TEST}/gevs/constituency/${cons_name}`,
       );
       console.log('resp:::::', resp.data);
       const data = resp.data as Candidate[];
@@ -176,7 +179,8 @@ const HomeScreen = () => {
     try {
       // setLoading(true);
       const resp = await Post(
-        `${api.SERVER_TEST}/gevs/settings/update-status`,
+        // `${apiConfig.SERVER_TEST}/gevs/settings/update-status`,
+        `/settings/update-status`,
         {
           settingsId: 'Shangri-La-Election',
           status:
@@ -224,7 +228,8 @@ const HomeScreen = () => {
     try {
       setContentLoading(true);
       const resp = await Post(
-        `${api.SERVER_TEST}/gevs/settings/update-status`,
+        // `${apiConfig.SERVER_TEST}/gevs/settings/update-status`,
+        `/settings/update-status`,
         {
           settingsId: 'Shangri-La-Election',
           status: 'published',
@@ -317,7 +322,7 @@ const HomeScreen = () => {
               : ''
           }
         />
-        {(electionStatus == 'not-started' || electionStatus == 'ongloing') && (
+        {(electionStatus == 'not-started' || electionStatus == 'ongoing') && (
           <TouchableOpacity
             style={{
               backgroundColor:

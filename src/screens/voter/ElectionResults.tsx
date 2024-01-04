@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 //
 import {Get} from '../../api';
-import api from '../../config/api';
+import apiConfig from '../../config/apiConfig';
 import {Colors} from '../../utils';
 import {AppModal, AppText, Loading} from '../../compoents';
 //
@@ -47,7 +47,7 @@ const ElectionResults = ({
   const loadShowResults = async () => {
     try {
       setContentLoading(true);
-      const resp = await Get(`${api.SERVER_TEST}/gevs/results`);
+      const resp = await Get(`/results`);
       console.log('resp:::::', resp);
       if (resp.status == 'success') {
         const data = resp.data as ElectionResult;

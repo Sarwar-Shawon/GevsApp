@@ -114,7 +114,7 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <ActivityIndicator size={'small'} color={Colors.primary} />
+                <ActivityIndicator size={'small'} color={Colors.text_color} />
               </View>
             </TouchableOpacity>
           ) : (

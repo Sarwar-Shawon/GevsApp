@@ -1,4 +1,6 @@
 import axios, {AxiosError} from 'axios';
+import api from './api';
+
 type ReturnValue<T = unknown> = {
   status?: string;
   data?: T;
@@ -11,10 +13,11 @@ type PostFnType = <ArgType, ResType>(
 ) => Promise<ReturnValue<ResType>>;
 
 type GetFnType<T = unknown> = (url: string) => Promise<ReturnValue<T>>;
+
 // Post method
 export const Post: PostFnType = async (url, arg) => {
   try {
-    const response = await axios.post(url, arg);
+    const response = await api.post(url, arg);
     if (response.data.status === 'success') {
       return {
         status: response.data.status,
@@ -43,6 +46,64 @@ export const Post: PostFnType = async (url, arg) => {
 };
 // Get method
 export const Get: GetFnType = async (url: string) => {
+  try {
+    const response = await api.get(url);
+    console.log('response', response.data);
+    if (response?.data.status == 'success')
+      return {
+        status: response?.data.status,
+        data: response?.data?.data,
+        message: response?.data?.message,
+      };
+    else
+      return {status: response?.data.status, message: response?.data?.message};
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      console.log('axiosError', axiosError.message);
+      return {
+        status: 'error',
+        message: axiosError.message,
+      };
+    }
+    return {
+      status: 'error',
+      message: 'An error occurred',
+    };
+  }
+};
+// Post method
+export const PublicPost: PostFnType = async (url, arg) => {
+  try {
+    const response = await axios.post(url, arg);
+    if (response.data.status === 'success') {
+      return {
+        status: response.data.status,
+        data: response.data.data,
+        message: response.data.message,
+      };
+    } else {
+      return {
+        status: response.data.status,
+        message: response.data.message,
+      };
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      return {
+        status: 'error',
+        message: axiosError.message,
+      };
+    }
+    return {
+      status: 'error',
+      message: 'An error occurred',
+    };
+  }
+};
+//
+export const PublicGet: GetFnType = async (url: string) => {
   try {
     const response = await axios.get(url);
     if (response?.data.status == 'success')

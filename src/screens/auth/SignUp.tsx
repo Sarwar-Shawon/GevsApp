@@ -13,6 +13,7 @@ import {
   Alert,
   Platform,
   KeyboardAvoidingView,
+  ActivityIndicator,
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
@@ -30,8 +31,8 @@ import {
   formatDateToString,
   formatStringToStringDate,
 } from '../../utils';
-import {Post, Get} from '../../api';
-import api from '../../config/api';
+import {PublicPost, PublicGet} from '../../api';
+import apiConfig from '../../config/apiConfig';
 //
 interface VoterType {
   voter_id: string;
@@ -54,6 +55,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   const [constituencyItems, setConstituencyItems] = useState<Constituency[]>(
     [] as Constituency[],
   );
+  const [loading, setLoading] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [voter_id, setVoter_Id] = useState('');
   const [full_name, setFull_Name] = useState('');
@@ -78,6 +80,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
       //   setError('');
       // }
       //
+      setLoading(true);
       const params = {
         voter_id,
         full_name,
@@ -87,24 +90,41 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
         constituency_id,
         user_type: 'voter',
       };
-      const resp = await Post(`${api.SERVER_TEST}/gevs/auth/register`, params);
+      const resp = await PublicPost(
+        `${apiConfig.SERVER_TEST}/gevs/auth/register`,
+        // `/gevs/auth/register`,
+        params,
+      );
       console.log('resp:::::', resp);
       if (resp.status === 'success') {
         Alert.alert(
           'Success',
-          resp.message,
-          [{text: 'OK', onPress: () => {}}],
+          resp.message + 'You can now signin from the sign in page.',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate('SignIn');
+              },
+            },
+          ],
           {cancelable: false},
         );
       } else {
         setError(resp.message ? resp.message : '');
       }
-    } catch (err) {}
+    } catch (err) {
+    } finally {
+      setLoading(false);
+    }
   };
   // get constituency
   const getConstituency = async () => {
     try {
-      const resp = await Get(`${api.SERVER_TEST}/gevs/constituency/all`);
+      const resp = await PublicGet(
+        `${apiConfig.SERVER_TEST}/gevs/constituency/all`,
+      );
+      // const resp = await Get(`/gevs/constituency/all`);
       if (resp.status === 'success') {
         const data = resp?.data as Constituency[];
         setConstituencyItems(data);
@@ -283,9 +303,23 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
               setConstituency_id(val);
             }}
           />
-          <TouchableOpacity onPress={onSignUpPress} style={styles.signUpBtn}>
-            <AppText title={'Sign Up'} style={{fontWeight: 'bold'}} />
-          </TouchableOpacity>
+          {loading ? (
+            <TouchableOpacity style={styles.signUpBtn} onPress={() => {}}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <ActivityIndicator size={'small'} color={Colors.text_color} />
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={onSignUpPress} style={styles.signUpBtn}>
+              <AppText title={'Sign Up'} style={{fontWeight: 'bold'}} />
+            </TouchableOpacity>
+          )}
+
           <TouchableOpacity
             onPress={() => navigation.navigate('SignIn')}
             style={{
