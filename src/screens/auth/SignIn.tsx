@@ -12,6 +12,8 @@ import {
   Platform,
   KeyboardAvoidingView,
   ActivityIndicator,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {useAuthContext} from '../../context';
 
@@ -56,9 +58,9 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
     } catch (err) {}
   };
   //
-  const onSignUpPress = async () => {
-    try {
-    } catch (err) {}
+  const handlePressOutside = () => {
+    // Hide the keyboard when a tap occurs outside of TextInput
+    Keyboard.dismiss();
   };
   //
   return (
@@ -80,78 +82,82 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
           </TouchableOpacity>
         </View>
       )}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}>
-        <View style={{flex: 1, margin: 10, justifyContent: 'center'}}>
-          <AppText title={'User name'} />
-          <TextInput
-            style={styles.input}
-            placeholder="Username"
-            placeholderTextColor={Colors.placeholder_text}
-            onChangeText={setVoter_Id}
-            value={voter_id}
-            onSubmitEditing={() => refPasswordInput?.current?.focus()}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-          <AppText title={'Password'} />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor={Colors.placeholder_text}
-            onChangeText={setPasswod}
-            value={password}
-            ref={refPasswordInput}
-            autoCapitalize="none"
-            secureTextEntry={true}
-          />
-          {loading ? (
-            <TouchableOpacity style={styles.signInBtn} onPress={() => {}}>
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <ActivityIndicator size={'small'} color={Colors.text_color} />
-              </View>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity onPress={onSignInPress} style={styles.signInBtn}>
-              <AppText title={'SignIn'} style={{fontWeight: 'bold'}} />
-            </TouchableOpacity>
-          )}
-
+      <TouchableWithoutFeedback onPress={handlePressOutside}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.container}>
+          <View style={{flex: 1, margin: 10, justifyContent: 'center'}}>
+            <AppText title={'Voter Id'} />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor={Colors.placeholder_text}
+              onChangeText={setVoter_Id}
+              value={voter_id}
+              onSubmitEditing={() => refPasswordInput?.current?.focus()}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+            <AppText title={'Password'} />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor={Colors.placeholder_text}
+              onChangeText={setPasswod}
+              value={password}
+              ref={refPasswordInput}
+              autoCapitalize="none"
+              secureTextEntry={true}
+            />
+            {loading ? (
+              <TouchableOpacity style={styles.signInBtn} onPress={() => {}}>
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}>
+                  <ActivityIndicator size={'small'} color={Colors.text_color} />
+                </View>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                onPress={onSignInPress}
+                style={styles.signInBtn}>
+                <AppText title={'SignIn'} style={{fontWeight: 'bold'}} />
+              </TouchableOpacity>
+            )}
+            {/* 
           <TouchableOpacity
             onPress={() => navigation.navigate('ForgotPassword')}>
             <AppText
               title={`Forgot Password?`}
               style={{marginTop: 10, alignSelf: 'flex-end', color: '#F2F1EB'}}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <TouchableOpacity
-            onPress={() => navigation.navigate('SignUp')}
-            style={{
-              flexDirection: 'row',
-              padding: 10,
-              marginTop: 10,
-              justifyContent: 'center',
-            }}>
-            <AppText title={`Need an account?`} />
-            <AppText
-              title={'SIGN UP'}
+            <TouchableOpacity
+              onPress={() => navigation.navigate('SignUp')}
               style={{
-                paddingLeft: 2,
-                fontFamily: 'bold',
-                textDecorationLine: 'underline',
-                fontStyle: 'italic',
-              }}
-            />
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+                flexDirection: 'row',
+                padding: 10,
+                marginTop: 10,
+                justifyContent: 'center',
+              }}>
+              <AppText title={`Need an account?`} />
+              <AppText
+                title={'SIGN UP'}
+                style={{
+                  paddingLeft: 2,
+                  fontFamily: 'bold',
+                  textDecorationLine: 'underline',
+                  fontStyle: 'italic',
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
     </PageWrapper>
   );
 };

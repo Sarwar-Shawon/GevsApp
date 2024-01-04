@@ -83,7 +83,7 @@ const AuthProvider = ({children}: AuthProviderType) => {
     try {
       setError('');
       const resp = await PublicPost(
-        `${apiConfig.SERVER_TEST}/gevs/auth/login`,
+        `${apiConfig.SERVER_LIVE}/auth/login`,
         params,
       );
       console.log('resp:::::', resp);

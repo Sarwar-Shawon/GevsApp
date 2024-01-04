@@ -20,7 +20,6 @@ import {
 import {
   PageWrapper,
   AppText,
-  RnCalendar,
   Dropdown,
   AppModal,
   QRCodeScanner,
@@ -33,6 +32,7 @@ import {
 } from '../../utils';
 import {PublicPost, PublicGet} from '../../api';
 import apiConfig from '../../config/apiConfig';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 //
 interface VoterType {
   voter_id: string;
@@ -56,15 +56,23 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
     [] as Constituency[],
   );
   const [loading, setLoading] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
   const [voter_id, setVoter_Id] = useState('');
   const [full_name, setFull_Name] = useState('');
-  const [DOB, setDOB] = useState(formatDateToString(new Date()));
   const [password, setPasswod] = useState('');
   const [UVC, setUvc] = useState('');
   const [constituency_id, setConstituency_id] = useState('');
   const [showQrScan, setShowQrScan] = useState(false);
   const [error, setError] = useState<string>('');
+  //
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const showDatePicker = () => {
+    setDatePickerVisible(true);
+  };
+  //
+  const hideDatePicker = () => {
+    setDatePickerVisible(false);
+  };
   //
   useEffect(() => {
     getConstituency();
@@ -74,24 +82,38 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   //
   const onSignUpPress = async () => {
     try {
-      // if (UVC.trim() === '') {
-      //   setError('Please enter an UVC');
-      // } else {
-      //   setError('');
-      // }
-      //
+      setError('');
+      if (
+        voter_id.length === 0 ||
+        /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(voter_id) === false
+      ) {
+        setError('Valid email is required.');
+        return;
+      }
+      if (password.length === 0) {
+        setError('Password is required.');
+        return;
+      }
+      if (UVC.length === 0) {
+        setError('UVC is required.');
+        return;
+      }
+      if (constituency_id.length === 0) {
+        setError('Constituency is required.');
+        return;
+      }
       setLoading(true);
       const params = {
         voter_id,
         full_name,
-        DOB,
+        DOB: formatDateToString(selectedDate),
         password,
         UVC,
         constituency_id,
         user_type: 'voter',
       };
       const resp = await PublicPost(
-        `${apiConfig.SERVER_TEST}/gevs/auth/register`,
+        `${apiConfig.SERVER_LIVE}/auth/register`,
         // `/gevs/auth/register`,
         params,
       );
@@ -121,10 +143,8 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   // get constituency
   const getConstituency = async () => {
     try {
-      const resp = await PublicGet(
-        `${apiConfig.SERVER_TEST}/gevs/constituency/all`,
-      );
-      // const resp = await Get(`/gevs/constituency/all`);
+      const resp = await PublicGet(`${apiConfig.SERVER_LIVE}/constituency/all`);
+      // console.log('resp', resp);
       if (resp.status === 'success') {
         const data = resp?.data as Constituency[];
         setConstituencyItems(data);
@@ -163,10 +183,10 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
         style={styles.container}> */}
       <TouchableWithoutFeedback onPress={handlePressOutside}>
         <View style={{flex: 1, margin: 10, justifyContent: 'center'}}>
-          <AppText title={'User name'} />
+          <AppText title={'Voter Id'} />
           <TextInput
             style={styles.input}
-            placeholder="Voter Id"
+            placeholder="Email"
             placeholderTextColor={Colors.placeholder_text}
             onChangeText={setVoter_Id}
             value={voter_id}
@@ -187,26 +207,10 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
           <TouchableOpacity
             style={styles.input}
             onPress={() => {
-              setShowCalendar(true);
+              showDatePicker();
             }}>
-            <AppText title={DOB} />
+            <AppText title={formatDateToString(selectedDate)} />
           </TouchableOpacity>
-          {showCalendar && (
-            <AppModal
-              closeModal={() => setShowCalendar(false)}
-              hideClose={false}
-              style={{backgroundColor: '#EFF4FA'}}>
-              <View style={{flex: 1, marginVertical: 16}}>
-                <RnCalendar
-                  date={DOB}
-                  setDate={(date: string) => {
-                    setDOB(formatStringToStringDate(date));
-                    setShowCalendar(false);
-                  }}
-                />
-              </View>
-            </AppModal>
-          )}
           <AppText title={'Password'} />
           <TextInput
             style={styles.input}
@@ -343,6 +347,17 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
       </TouchableWithoutFeedback>
 
       {/* </KeyboardAvoidingView> */}
+      <DateTimePickerModal
+        date={selectedDate}
+        isVisible={datePickerVisible}
+        mode="date"
+        onConfirm={val => {
+          setSelectedDate(val);
+          hideDatePicker();
+        }}
+        maximumDate={new Date()}
+        onCancel={hideDatePicker}
+      />
     </PageWrapper>
   );
 };

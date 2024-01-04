@@ -95,7 +95,6 @@ const HomeScreen = () => {
   const getElectionStatus = async () => {
     try {
       const resp = await Get(
-        // `${apiConfig.SERVER_TEST}/gevs/settings/get-status?settingsId=${appConfig.settingsId}`,
         `/settings/get-status?settingsId=${appConfig.settingsId}`,
       );
       console.log('election status:::::', resp.data);
@@ -112,7 +111,6 @@ const HomeScreen = () => {
   const loadConstituency = async () => {
     try {
       setLoading(true);
-      // const resp = await Get(`${apiConfig.SERVER_TEST}/gevs/constituency/all`);
       const resp = await Get(`/constituency/all`);
       console.log('resp:::::', resp);
       const data = resp.data as Constituency[];
@@ -136,7 +134,6 @@ const HomeScreen = () => {
       setContentLoading(true);
       const resp = await Get(
         `/constituency/${cons_name}`,
-        // `${apiConfig.SERVER_TEST}/gevs/constituency/${cons_name}`,
       );
       console.log('resp:::::', resp.data);
       const data = resp.data as Candidate[];
@@ -179,7 +176,6 @@ const HomeScreen = () => {
     try {
       // setLoading(true);
       const resp = await Post(
-        // `${apiConfig.SERVER_TEST}/gevs/settings/update-status`,
         `/settings/update-status`,
         {
           settingsId: 'Shangri-La-Election',
@@ -228,7 +224,6 @@ const HomeScreen = () => {
     try {
       setContentLoading(true);
       const resp = await Post(
-        // `${apiConfig.SERVER_TEST}/gevs/settings/update-status`,
         `/settings/update-status`,
         {
           settingsId: 'Shangri-La-Election',

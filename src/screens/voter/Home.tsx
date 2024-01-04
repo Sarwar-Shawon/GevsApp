@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -7,6 +7,8 @@ import {
   Alert,
   Image,
   ActivityIndicator,
+  ColorSchemeName,
+  Appearance,
 } from 'react-native';
 //
 import {Post, Get} from '../../api';
@@ -16,6 +18,18 @@ import {setItem, getItem, Colors} from '../../utils';
 import {AppText, Loading, PageWrapper} from '../../compoents';
 import {useAuthContext} from '../../context';
 import ElectionResults from './ElectionResults';
+const [theme, setTheme] = useState<ColorSchemeName>();
+
+const themeChangeListener = useCallback(() => {
+  setTheme(Appearance.getColorScheme());
+}, []);
+
+useEffect(() => {
+  Appearance.addChangeListener(themeChangeListener);
+  // return () => Appearance.removeChangeListener(themeChangeListener);
+}, [themeChangeListener]);
+
+console.log({theme});
 //
 interface Candidate {
   _id: string;
@@ -83,7 +97,6 @@ const HomeScreen = () => {
   const getElectionStatus = async () => {
     try {
       const resp = await Get(
-        // `${apiConfig.SERVER_TEST}/gevs/settings/get-status?settingsId=${appConfig.settingsId}`,
         `/settings/get-status?settingsId=${appConfig.settingsId}`,
       );
       console.log('election status:::::', resp.data);
@@ -97,10 +110,7 @@ const HomeScreen = () => {
   const loadCandidates = async (usr_id: string) => {
     try {
       setLoading(true);
-      const resp = await Get(
-        // `${apiConfig.SERVER_TEST}/gevs/candidate/get-candidates/${usr_id}`,
-        `/candidate/get-candidates/${usr_id}`,
-      );
+      const resp = await Get(`/candidate/get-candidates/${usr_id}`);
       // console.log('resp:::::', resp.data);
       const data = resp.data as Candidate[];
       setCandidates(data);
@@ -116,10 +126,7 @@ const HomeScreen = () => {
     try {
       setLoading(true);
       if (user) {
-        const resp = await Get(
-          `/vote/get?voter_id=${usr_id}`,
-          // `${apiConfig.SERVER_TEST}/gevs/vote/get?voter_id=${usr_id}`,
-        );
+        const resp = await Get(`/vote/get?voter_id=${usr_id}`);
         // console.log('checkProvidedVote: resp:::::', resp);
         const data = resp;
         if (resp.data) {
@@ -148,25 +155,17 @@ const HomeScreen = () => {
         return;
       }
       setSubmitLoading(true);
-      const resp = await Post(
-        // `${apiConfig.SERVER_TEST}/gevs/candidate/provide-vote`,
-        `/candidate/provide-vote`,
-        {
-          voter_id: user.usr_id,
-          candidate_id: selectedCandidate,
-        },
-      );
+      const resp = await Post(`/candidate/provide-vote`, {
+        voter_id: user.usr_id,
+        candidate_id: selectedCandidate,
+      });
       console.log('resp:::::', resp);
       if (resp.status == 'success') {
-        const respVote = await Post(
-          // `${apiConfig.SERVER_TEST}/gevs/vote/provide`,
-          `/vote/provide`,
-          {
-            voter_id: user.usr_id,
-            uvc: user.uvc,
-            candidate_id: selectedCandidate,
-          },
-        );
+        const respVote = await Post(`/vote/provide`, {
+          voter_id: user.usr_id,
+          uvc: user.uvc,
+          candidate_id: selectedCandidate,
+        });
         // console.log('election status:::::', resp.data);
         if (respVote.status === 'success') {
           setVoteSubmitted(true);
