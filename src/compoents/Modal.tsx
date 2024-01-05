@@ -12,7 +12,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import {Colors} from '../utils';
-import {AppText} from './CusCompoents';
+import {AppText} from './CusComponents';
 // import MIcon from 'react-native-vector-icons/MaterialIcons';
 interface Props {
   children: ReactNode;

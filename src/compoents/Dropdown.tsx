@@ -56,6 +56,7 @@ const Dropdown = ({
       }}
       containerStyle={{
         backgroundColor: Colors.background,
+        zIndex: 5000,
       }}
       placeholderStyle={{
         color: Colors.placeholder_text,

@@ -258,7 +258,12 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
               closeModal={() => setShowQrScan(false)}
               hideClose={false}
               style={{backgroundColor: '#EFF4FA'}}>
-              <View style={{flex: 1, marginVertical: 16}}>
+              <View
+                style={{
+                  flex: 1,
+                  marginVertical: 16,
+                  backgroundColor: Colors.background,
+                }}>
                 <QRCodeScanner
                   hideModal={() => setShowQrScan(false)}
                   Uvc={UVC}
