@@ -144,7 +144,6 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   const getConstituency = async () => {
     try {
       const resp = await PublicGet(`${apiConfig.SERVER_LIVE}/constituency/all`);
-      // console.log('resp', resp);
       if (resp.status === 'success') {
         const data = resp?.data as Constituency[];
         setConstituencyItems(data);
