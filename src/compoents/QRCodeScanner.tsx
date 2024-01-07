@@ -1,7 +1,7 @@
 /*
  * @copyRight by md sarwar hoshen.
  */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   Text,
   View,
@@ -15,8 +15,10 @@ import {
   useCodeScanner,
   useCameraDevice,
 } from 'react-native-vision-camera';
+
 import {Colors} from '../utils';
 import {AppText, Loading} from '../compoents';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 interface Props {
   hideModal: () => void;
@@ -29,6 +31,32 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
   const [loading, setLoading] = useState(true);
   const [cameraPermission, setCameraPermission] = useState('');
   const device = useCameraDevice('back');
+  //
+
+  const [isCameraInitialized, setIsCameraInitialized] = useState(false);
+  const [isActive, setIsActive] = useState(Platform.OS === 'ios');
+
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      return () => {};
+    }
+
+    let timeout: NodeJS.Timeout;
+
+    if (isCameraInitialized) {
+      timeout = setTimeout(() => setIsActive(true), 150);
+    }
+
+    setIsActive(false);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [isCameraInitialized]);
+
+  const onInitialized = useCallback(() => {
+    setIsCameraInitialized(true);
+  }, []);
+  //
   useEffect(() => {
     (async () => {
       const cameraPermissionStatus = await Camera.requestCameraPermission();
@@ -37,6 +65,7 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
       setLoading(false);
     })();
   }, []);
+
   //
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
@@ -49,6 +78,7 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
     },
   });
   //
+
   const openSettings = () => {
     if (Platform.OS === 'ios') {
       Linking.openSettings();
@@ -86,13 +116,16 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
       );
     }
     return (
-      <Camera
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={true}
-        codeScanner={codeScanner}
-        enableZoomGesture={true}
-      />
+      <SafeAreaView style={StyleSheet.absoluteFill}>
+        <Camera
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive={isActive && isCameraInitialized}
+          onInitialized={onInitialized}
+          codeScanner={codeScanner}
+          enableZoomGesture={true}
+        />
+      </SafeAreaView>
     );
   }
 };
