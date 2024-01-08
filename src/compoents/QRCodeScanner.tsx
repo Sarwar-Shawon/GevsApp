@@ -110,7 +110,7 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
   if (cameraPermission == 'granted') {
     if (device == null) {
       return (
-        <View>
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <AppText title="No camera found." />
         </View>
       );
