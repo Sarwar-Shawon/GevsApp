@@ -7,29 +7,15 @@ import {
   Alert,
   Image,
   ActivityIndicator,
-  ColorSchemeName,
-  Appearance,
+  Text,
 } from 'react-native';
 //
 import {Post, Get} from '../../api';
-import apiConfig from '../../config/apiConfig';
 import appConfig from '../../config/config';
-import {setItem, getItem, Colors} from '../../utils';
-import {AppText, Loading, PageWrapper} from '../../compoents';
+import {getItem, Colors} from '../../utils';
+import {AppText, ErrorMessage, Loading, PageWrapper} from '../../compoents';
 import {useAuthContext} from '../../context';
 import ElectionResults from './ElectionResults';
-const [theme, setTheme] = useState<ColorSchemeName>();
-
-const themeChangeListener = useCallback(() => {
-  setTheme(Appearance.getColorScheme());
-}, []);
-
-useEffect(() => {
-  Appearance.addChangeListener(themeChangeListener);
-  // return () => Appearance.removeChangeListener(themeChangeListener);
-}, [themeChangeListener]);
-
-console.log({theme});
 //
 interface Candidate {
   _id: string;
@@ -72,6 +58,7 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [error, setError] = useState<string>('');
 
   //useEffect
   useEffect(() => {
@@ -142,7 +129,7 @@ const HomeScreen = () => {
       setLoading(false);
     }
   };
-  //vote submit handler
+  // //vote submit handler
   const handleSubmitVote = async () => {
     try {
       if (!selectedCandidate) {
@@ -155,6 +142,7 @@ const HomeScreen = () => {
         return;
       }
       setSubmitLoading(true);
+      setError('');
       const resp = await Post(`/candidate/provide-vote`, {
         voter_id: user.usr_id,
         candidate_id: selectedCandidate,
@@ -175,14 +163,19 @@ const HomeScreen = () => {
             [{text: 'OK', onPress: () => {}}],
             {cancelable: false},
           );
+        } else {
+          const errMsg = respVote.message as string;
+          setError(errMsg);
         }
+      } else {
+        const errMsg = resp.message as string;
+        setError(errMsg);
       }
       setSubmitLoading(false);
     } catch (err) {
       setSubmitLoading(false);
     }
   };
-
   //
   const handleLogout = async () => {
     Alert.alert(
@@ -211,6 +204,23 @@ const HomeScreen = () => {
   //render
   return (
     <PageWrapper style={styles.container}>
+      {error !== '' && (
+        <View style={{flexDirection: 'row'}}>
+          <View style={{flex: 1}}>
+            <ErrorMessage message={error} />
+          </View>
+          <TouchableOpacity
+            style={{
+              padding: 10,
+              backgroundColor: 'green',
+              margin: 10,
+              borderRadius: 10,
+            }}
+            onPress={() => setError('')}>
+            <Text style={{color: 'white'}}>Hide</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <View style={{flexDirection: 'row', marginLeft: 20}}>
         <AppText
           style={{flex: 1, paddingTop: 6}}
