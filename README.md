@@ -1,12 +1,4 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
-# App Screenshot
-![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 33 30@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/04c304c4-237a-4333-9180-48666999b5fd)
-![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 33 37@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/2bbbee31-e659-44f0-8dec-cea54dbd36d5)
-![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 36 00@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/cf221384-1fee-4eba-a2db-9951612231d2)
-![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 36 31@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/49a59254-519d-43e9-b167-c139b6b0c0e6)
-![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 39 31@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/9dbf06a7-7ee3-4a5f-b544-eff0580ceae3)
-![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 39 42@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/a444365c-58e7-436a-8cbe-c14140eaeb7a)
-![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 40 10@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/211948f0-478f-4b86-b493-da5f39c68fef)
 
 # Getting Started
 
@@ -85,3 +77,12 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+# App Screenshot
+![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 33 30@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/04c304c4-237a-4333-9180-48666999b5fd)
+![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 33 37@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/2bbbee31-e659-44f0-8dec-cea54dbd36d5)
+![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 36 00@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/cf221384-1fee-4eba-a2db-9951612231d2)
+![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 36 31@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/49a59254-519d-43e9-b167-c139b6b0c0e6)
+![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 39 31@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/9dbf06a7-7ee3-4a5f-b544-eff0580ceae3)
+![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 39 42@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/a444365c-58e7-436a-8cbe-c14140eaeb7a)
+![Simulator Screenshot - iPhone 15 Pro - 2024-01-10 at 22 40 10@1x](https://github.com/Sarwar-Shawon/GevsApp/assets/16131704/211948f0-478f-4b86-b493-da5f39c68fef)
