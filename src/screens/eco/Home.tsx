@@ -132,9 +132,7 @@ const HomeScreen = () => {
     try {
       console.log('cons_name', cons_name);
       setContentLoading(true);
-      const resp = await Get(
-        `/constituency/${cons_name}`,
-      );
+      const resp = await Get(`/constituency/${cons_name}`);
       console.log('resp:::::', resp.data);
       const data = resp.data as Candidate[];
       // console.log('datadatadatadatadata:::::', data);
@@ -175,18 +173,15 @@ const HomeScreen = () => {
   const changeElectionStatus = async () => {
     try {
       // setLoading(true);
-      const resp = await Post(
-        `/settings/update-status`,
-        {
-          settingsId: 'Shangri-La-Election',
-          status:
-            electionStatus == 'not-started' || electionStatus == 'finished'
-              ? 'ongoing'
-              : electionStatus == 'ongoing'
-              ? 'finished'
-              : 'not-started',
-        },
-      );
+      const resp = await Post(`/settings/update-status`, {
+        settingsId: 'Shangri-La-Election',
+        status:
+          electionStatus == 'not-started' || electionStatus == 'finished'
+            ? 'ongoing'
+            : electionStatus == 'ongoing'
+            ? 'finished'
+            : 'not-started',
+      });
       console.log('resp:::::', resp.data);
       if (resp.status == 'success') {
         const data = resp.data as electionStatus;
@@ -223,13 +218,10 @@ const HomeScreen = () => {
   const publishResults = async () => {
     try {
       setContentLoading(true);
-      const resp = await Post(
-        `/settings/update-status`,
-        {
-          settingsId: 'Shangri-La-Election',
-          status: 'published',
-        },
-      );
+      const resp = await Post(`/settings/update-status`, {
+        settingsId: 'Shangri-La-Election',
+        status: 'published',
+      });
       if (resp.status === 'success') {
         Alert.alert(
           'Success',
@@ -343,22 +335,31 @@ const HomeScreen = () => {
         <AppText style={styles.title} title="All Constituency" />
       </View>
       <ScrollView style={{flex: 1, margin: 20}}>
-        {constituency.map(consti => (
-          <TouchableOpacity
-            key={consti.label}
-            style={[styles.candidateButton]}
-            onPress={() => {
-              handleConstitencyPress(consti.label);
-            }}>
-            <AppText style={{color: '#000000'}} title={consti.label} />
-          </TouchableOpacity>
-        ))}
+        {constituency.length ? (
+          constituency.map(consti => (
+            <TouchableOpacity
+              key={consti.label}
+              style={[styles.candidateButton]}
+              onPress={() => {
+                handleConstitencyPress(consti.label);
+              }}>
+              <AppText style={{color: '#000000'}} title={consti.label} />
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+            <AppText style={styles.title} title="No constituency found." />
+          </View>
+        )}
       </ScrollView>
-      <TouchableOpacity
-        onPress={() => setShowResults(true)}
-        style={styles.submitButton}>
-        <AppText title={'Show Results'} style={{fontWeight: 'bold'}} />
-      </TouchableOpacity>
+      {electionStatus != 'not-started' && (
+        <TouchableOpacity
+          onPress={() => setShowResults(true)}
+          style={styles.submitButton}>
+          <AppText title={'Show Results'} style={{fontWeight: 'bold'}} />
+        </TouchableOpacity>
+      )}
+
       {showConstituencyDetails && (
         <AppModal
           closeModal={() => setConstituencyDetails(false)}
@@ -467,7 +468,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   candidateButton: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#b3e0ff',
     padding: 10,
     marginVertical: 5,
     borderRadius: 8,
@@ -478,7 +479,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#b3e0ff', // You can use a different color for the selected candidate
   },
   submitButton: {
-    backgroundColor: '#4caf50',
+    backgroundColor: '#37b810',
     padding: 15,
     margin: 20,
     borderRadius: 8,

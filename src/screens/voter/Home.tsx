@@ -267,7 +267,7 @@ const HomeScreen = () => {
               : electionStatus == 'finished'
               ? 'The election has finished.'
               : electionStatus == 'published'
-              ? 'The results has been published.'
+              ? 'The election is finished  and the results has been published.'
               : ''
           }
         />
@@ -280,7 +280,10 @@ const HomeScreen = () => {
         )}
       </View>
       <View style={{marginLeft: 20}}>
-        <AppText style={styles.title} title="Cast Your Vote" />
+        <AppText
+          style={styles.title}
+          title={voteSubmitted ? 'Your Vote' : 'Cast Your Vote'}
+        />
       </View>
       {voteSubmitted && (
         <AppText
@@ -323,6 +326,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
       ) : (
         !voteSubmitted &&
+        electionStatus != 'published' &&
         selectedCandidate !== null && (
           <TouchableOpacity
             style={[
