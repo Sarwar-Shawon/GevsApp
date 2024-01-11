@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import {useAuthContext} from '../../context';
 
-import {PageWrapper, AppText, ErrorMessage} from '../../compoents';
+import {PageWrapper, AppText, AppPassword, ErrorMessage} from '../../compoents';
 import {Colors} from '../../utils';
 import {StackAuthProps} from '../../route/AuthRoutes';
 
@@ -26,9 +26,10 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
   const {signIn, error: signInError} = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [voter_id, setVoter_Id] = useState('');
-  const [password, setPasswod] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string>('');
   const refPasswordInput = useRef<TextInput>(null);
+  const [showPassword, setShowPassword] = useState(false);
   //
   useEffect(() => {
     setError(signInError);
@@ -99,15 +100,14 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
               keyboardType="email-address"
             />
             <AppText title={'Password'} />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor={Colors.placeholder_text}
-              onChangeText={setPasswod}
-              value={password}
-              ref={refPasswordInput}
-              autoCapitalize="none"
-              secureTextEntry={true}
+            <AppPassword
+              placeholder={'Password'}
+              password={password}
+              setValue={val => {
+                setPassword(val);
+                console.log('val;::::::', val);
+              }}
+              refPasswordInput={refPasswordInput}
             />
             {loading ? (
               <TouchableOpacity style={styles.signInBtn} onPress={() => {}}>
