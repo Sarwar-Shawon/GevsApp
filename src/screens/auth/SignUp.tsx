@@ -24,6 +24,7 @@ import {
   AppModal,
   QRCodeScanner,
   ErrorMessage,
+  AppPassword,
 } from '../../compoents';
 import {
   Colors,
@@ -58,7 +59,7 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   const [loading, setLoading] = useState(false);
   const [voter_id, setVoter_Id] = useState('');
   const [full_name, setFull_Name] = useState('');
-  const [password, setPasswod] = useState('');
+  const [password, setPassword] = useState('');
   const [UVC, setUvc] = useState('');
   const [constituency_id, setConstituency_id] = useState('');
   const [showQrScan, setShowQrScan] = useState(false);
@@ -211,14 +212,13 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
             <AppText title={formatDateToString(selectedDate)} />
           </TouchableOpacity>
           <AppText title={'Password'} />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor={Colors.placeholder_text}
-            onChangeText={setPasswod}
-            value={password}
-            autoCapitalize="none"
-            secureTextEntry={true}
+          <AppPassword
+            placeholder={'Password'}
+            password={password}
+            setValue={val => {
+              setPassword(val);
+              console.log('val;::::::', val);
+            }}
           />
           <AppText title={'UVC'} />
 
