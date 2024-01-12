@@ -24,10 +24,12 @@ export const AppText = ({title, style}: TextPropsType) => {
 };
 //
 interface PasswordPropsType {
+  showPassword?: boolean;
   password?: string;
   placeholder?: string;
   style?: TextStyle;
   setValue: (val: string) => void;
+  setShowPassword: (val: boolean) => void;
   refPasswordInput?: React.RefObject<TextInput>;
 }
 //
@@ -37,8 +39,10 @@ export const AppPassword = ({
   style,
   setValue,
   refPasswordInput,
+  showPassword,
+  setShowPassword
 }: PasswordPropsType) => {
-  const [showPassword, setShowPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
   return (
     <View>
       <TextInput

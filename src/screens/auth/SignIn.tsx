@@ -103,10 +103,9 @@ const SignInScreen = ({navigation}: StackAuthProps) => {
             <AppPassword
               placeholder={'Password'}
               password={password}
-              setValue={val => {
-                setPassword(val);
-                console.log('val;::::::', val);
-              }}
+              setValue={setPassword}
+              setShowPassword={setShowPassword}
+              showPassword={showPassword}
               refPasswordInput={refPasswordInput}
             />
             {loading ? (
