@@ -64,6 +64,8 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
   const [constituency_id, setConstituency_id] = useState('');
   const [showQrScan, setShowQrScan] = useState(false);
   const [error, setError] = useState<string>('');
+  const [showPassword, setShowPassword] = useState(false);
+
   //
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [datePickerVisible, setDatePickerVisible] = useState(false);
@@ -215,10 +217,9 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
           <AppPassword
             placeholder={'Password'}
             password={password}
-            setValue={val => {
-              setPassword(val);
-              console.log('val;::::::', val);
-            }}
+            setValue={setPassword}
+            setShowPassword={setShowPassword}
+            showPassword={showPassword}
           />
           <AppText title={'UVC'} />
 
