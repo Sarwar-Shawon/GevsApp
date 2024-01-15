@@ -48,13 +48,13 @@ const ElectionResults = ({
     try {
       setContentLoading(true);
       const resp = await Get(`/results`);
-      console.log('resp:::::', resp);
+      // console.log('resp:::::', resp);
       if (resp.status == 'success') {
         const data = resp.data as ElectionResult;
         setElectionResult(data);
       }
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     } finally {
       setContentLoading(false);
     }

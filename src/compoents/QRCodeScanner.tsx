@@ -15,11 +15,11 @@ import {
   useCodeScanner,
   useCameraDevice,
 } from 'react-native-vision-camera';
-
+import {useIsFocused} from '@react-navigation/native';
 import {Colors} from '../utils';
 import {AppText, Loading} from '../compoents';
 import {SafeAreaView} from 'react-native-safe-area-context';
-
+import {useIsForeground} from '../hooks/useIsForeground';
 interface Props {
   hideModal: () => void;
   Uvc: string;
@@ -35,7 +35,8 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
 
   const [isCameraInitialized, setIsCameraInitialized] = useState(false);
   const [isActive, setIsActive] = useState(Platform.OS === 'ios');
-
+  const isFocused = useIsFocused();
+  const isForeground = useIsForeground();
   useEffect(() => {
     if (Platform.OS === 'ios') {
       return () => {};
@@ -55,7 +56,6 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
   useEffect(() => {
     (async () => {
       const cameraPermissionStatus = await Camera.requestCameraPermission();
-      console.log('cameraPermissionStatus', cameraPermissionStatus);
       setCameraPermission(cameraPermissionStatus);
       setLoading(false);
     })();
@@ -65,9 +65,9 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
     onCodeScanned: codes => {
-      console.log(`Scanned ${codes.length} codes!`);
       if (codes.length > 0 && codes[0].value) {
         setValue(codes[0].value);
+        setIsActive(false);
         hideModal();
       }
     },
@@ -82,7 +82,6 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
   };
   //show loader
   if (loading && cameraPermission == '') {
-    console.log('loading::');
     return (
       <View>
         <Loading />
@@ -113,7 +112,7 @@ const QRCodeScanner = ({hideModal, Uvc, setValue}: Props) => {
       <Camera
         style={StyleSheet.absoluteFill}
         device={device}
-        isActive={isActive && isCameraInitialized}
+        isActive={isActive && isFocused && isForeground && isCameraInitialized}
         onInitialized={onInitialized}
         codeScanner={codeScanner}
         enableZoomGesture={true}

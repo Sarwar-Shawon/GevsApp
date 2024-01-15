@@ -86,7 +86,6 @@ const AuthProvider = ({children}: AuthProviderType) => {
         `${apiConfig.SERVER_LIVE}/auth/login`,
         params,
       );
-      console.log('resp:::::', resp);
       if (resp.status === 'success') {
         const data = resp?.data as User;
         setUserType(data.user_type);
@@ -121,7 +120,6 @@ const AuthProvider = ({children}: AuthProviderType) => {
       const resp = await Post(`/auth/logout`, {
         refreshToken: jwt.refreshToken,
       });
-      console.log('resprespresp:::', resp);
       if (resp.status == 'success') {
         await removeItem('usr');
         await Keychain.resetGenericPassword();

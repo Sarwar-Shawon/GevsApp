@@ -88,7 +88,7 @@ const HomeScreen = () => {
       }
       setUser(user);
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     }
   };
   //get Election Status
@@ -97,14 +97,14 @@ const HomeScreen = () => {
       const resp = await Get(
         `/settings/get-status?settingsId=${appConfig.settingsId}`,
       );
-      console.log('election status:::::', resp.data);
+      // console.log('election status:::::', resp.data);
       if (resp.status == 'error') {
         setError(resp?.message as string);
       }
       const status = resp.data as string;
       setElectionStatus(status);
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     }
   };
   //load Constituency
@@ -112,12 +112,12 @@ const HomeScreen = () => {
     try {
       setLoading(true);
       const resp = await Get(`/constituency/all`);
-      console.log('resp:::::', resp);
+      // console.log('resp:::::', resp);
       const data = resp.data as Constituency[];
       setConstituency(data || []);
       setLoading(false);
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     } finally {
       setLoading(false);
     }
@@ -130,16 +130,16 @@ const HomeScreen = () => {
   //load Constituency Results
   const loadConstituencyResults = async (cons_name: string) => {
     try {
-      console.log('cons_name', cons_name);
+      // console.log('cons_name', cons_name);
       setContentLoading(true);
       const resp = await Get(`/constituency/${cons_name}`);
-      console.log('resp:::::', resp.data);
+      // console.log('resp:::::', resp.data);
       const data = resp.data as Candidate[];
       // console.log('datadatadatadatadata:::::', data);
 
       setCandidates(data || []);
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     } finally {
       setContentLoading(false);
     }
@@ -182,7 +182,7 @@ const HomeScreen = () => {
             ? 'finished'
             : 'not-started',
       });
-      console.log('resp:::::', resp.data);
+      // console.log('resp:::::', resp.data);
       if (resp.status == 'success') {
         const data = resp.data as electionStatus;
         // console.log('datadatadatadatadata:::::', data);
@@ -190,7 +190,7 @@ const HomeScreen = () => {
       }
       // setLoading(false);
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     }
   };
   //
@@ -232,7 +232,7 @@ const HomeScreen = () => {
         setElectionStatus('published');
       }
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     } finally {
       setContentLoading(true);
       setShowResults(false);

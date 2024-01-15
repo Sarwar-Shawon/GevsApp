@@ -48,7 +48,7 @@ export const Post: PostFnType = async (url, arg) => {
 export const Get: GetFnType = async (url: string) => {
   try {
     const response = await api.get(url);
-    console.log('response', response.data);
+    // console.log('response', response.data);
     if (response?.data.status == 'success')
       return {
         status: response?.data.status,
@@ -60,7 +60,7 @@ export const Get: GetFnType = async (url: string) => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError;
-      console.log('axiosError', axiosError.message);
+      // console.log('axiosError', axiosError.message);
       return {
         status: 'error',
         message: axiosError.message,
@@ -117,7 +117,7 @@ export const PublicGet: GetFnType = async (url: string) => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError;
-      console.log('axiosError', axiosError.message);
+      // console.log('axiosError', axiosError.message);
       return {
         status: 'error',
         message: axiosError.message,

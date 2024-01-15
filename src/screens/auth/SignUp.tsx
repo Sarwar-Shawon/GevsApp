@@ -120,7 +120,6 @@ const SignUpScreen = ({navigation}: StackAuthProps) => {
         // `/gevs/auth/register`,
         params,
       );
-      console.log('resp:::::', resp);
       if (resp.status === 'success') {
         Alert.alert(
           'Success',

@@ -77,7 +77,7 @@ const HomeScreen = () => {
       }
       setUser(user);
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     }
   };
   //get Election Status
@@ -86,11 +86,11 @@ const HomeScreen = () => {
       const resp = await Get(
         `/settings/get-status?settingsId=${appConfig.settingsId}`,
       );
-      console.log('election status:::::', resp.data);
+      // console.log('election status:::::', resp.data);
       const status = resp.data as string;
       setElectionStatus(status);
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     }
   };
   //load Candidates
@@ -100,10 +100,10 @@ const HomeScreen = () => {
       const resp = await Get(`/candidate/get-candidates/${usr_id}`);
       // console.log('resp:::::', resp.data);
       const data = resp.data as Candidate[];
-      setCandidates(data);
+      setCandidates(data || []);
       setLoading(false);
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     } finally {
       setLoading(false);
     }
@@ -124,7 +124,7 @@ const HomeScreen = () => {
       }
       setLoading(false);
     } catch (err) {
-      console.log('err', err);
+      // console.log('err', err);
     } finally {
       setLoading(false);
     }
@@ -147,7 +147,7 @@ const HomeScreen = () => {
         voter_id: user.usr_id,
         candidate_id: selectedCandidate,
       });
-      console.log('resp:::::', resp);
+      // console.log('resp:::::', resp);
       if (resp.status == 'success') {
         const respVote = await Post(`/vote/provide`, {
           voter_id: user.usr_id,
@@ -265,7 +265,7 @@ const HomeScreen = () => {
                   !voteSubmitted ? ', So You Can cast your vote now' : ''
                 }.`
               : electionStatus == 'finished'
-              ? 'The election has finished.'
+              ? `The election has finished. You can't cast your vote now.`
               : electionStatus == 'published'
               ? 'The election is finished  and the results has been published.'
               : ''
@@ -301,7 +301,13 @@ const HomeScreen = () => {
                 selectedCandidate === candidate._id && styles.selectedCandidate,
               ]}
               onPress={() => setSelectedCandidate(candidate._id)}
-              disabled={voteSubmitted}>
+              disabled={
+                electionStatus == 'not-started'
+                  ? true
+                  : electionStatus == 'finished'
+                  ? true
+                  : voteSubmitted
+              }>
               <AppText
                 style={{color: '#000000', fontWeight: '500'}}
                 title={candidate.candidate}

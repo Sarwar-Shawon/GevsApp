@@ -31,7 +31,7 @@ api.interceptors.response.use(
         if (value) {
           const jwt = JSON.parse(value.password);
           const refreshToken = jwt.refreshToken;
-          console.log('refreshToken', refreshToken);
+          // console.log('refreshToken', refreshToken);
           const resp = await axios.post(
             `${apiConfig.SERVER_LIVE}/auth/refreshToken`,
             {
@@ -39,7 +39,7 @@ api.interceptors.response.use(
             },
           );
           const {accessToken} = resp.data;
-          console.log('accessToken:::', accessToken);
+          // console.log('accessToken:::', accessToken);
           await Keychain.setGenericPassword(
             'token',
             JSON.stringify({
